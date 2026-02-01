@@ -1,0 +1,201 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+////////////////////
+// ENUMS
+////////////////////
+
+enum UserRole {
+  STUDENT
+  PARENT
+  ADMIN
+}
+
+enum TaskStatus {
+  NOT_STARTED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum TaskCategory {
+  ESSAY
+  TESTING
+  EXTRACURRICULAR
+  APPLICATION
+  FINANCIAL_AID
+  SCHOLARSHIP
+  FAFSA
+  CSS_PROFILE
+  BUDGET
+  OTHER
+}
+
+enum EssayStatus {
+  DRAFT
+  IN_REVIEW
+  REVISED
+  FINAL
+}
+
+////////////////////
+// MODELS
+////////////////////
+
+model User {
+  id             String   @id @default(uuid())
+  email          String   @unique
+  passwordHash   String
+  role           UserRole
+  firstName      String
+  lastName       String
+  createdAt      DateTime @default(now())
+  updatedAt      DateTime @updatedAt
+  lastLoginAt    DateTime?
+  graduationYear Int?
+  gpa            Float?
+  studentId      String?
+
+  // Relations
+  student        User?    @relation("StudentParent", fields: [studentId], references: [id])
+  parent         User[]   @relation("StudentParent")
+
+  tasks           Task[]
+  essays          Essay[]
+  budgets         Budget[]
+  aiInteractions  AIInteraction[]
+
+  @@index([email])
+  @@index([role])
+  @@index([studentId])
+}
+
+model Task {
+  id          String       @id @default(uuid())
+  userId      String
+  title       String
+  description String?
+  category    TaskCategory
+  status      TaskStatus   @default(NOT_STARTED)
+  priority    Int          @default(0)
+  dueDate     DateTime?
+  completedAt DateTime?
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([status])
+  @@index([dueDate])
+  @@index([category])
+}
+
+model Essay {
+  id         String      @id @default(uuid())
+  userId     String
+  title      String
+  prompt     String
+  content    String      @default("")
+  wordCount  Int         @default(0)
+  status     EssayStatus @default(DRAFT)
+  schoolName String?
+  dueDate    DateTime?
+  createdAt  DateTime    @default(now())
+  updatedAt  DateTime    @updatedAt
+
+  user       User           @relation(fields: [userId], references: [id], onDelete: Cascade)
+  versions   EssayVersion[]
+  feedback   EssayFeedback[]
+
+  @@index([userId])
+  @@index([status])
+  @@index([dueDate])
+}
+
+model EssayVersion {
+  id        String   @id @default(uuid())
+  essayId  String
+  content  String
+  wordCount Int      @default(0)
+  version  Int
+  notes    String?
+  createdAt DateTime @default(now())
+
+  essay Essay @relation(fields: [essayId], references: [id], onDelete: Cascade)
+
+  @@index([essayId])
+  @@index([createdAt])
+}
+
+model EssayFeedback {
+  id        String   @id @default(uuid())
+  essayId  String
+  feedback String
+  isAI     Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  essay Essay @relation(fields: [essayId], references: [id], onDelete: Cascade)
+
+  @@index([essayId])
+  @@index([createdAt])
+}
+
+model Budget {
+  id              String   @id @default(uuid())
+  userId          String
+  schoolName      String
+  tuitionCost     Decimal  @db.Decimal(10, 2)
+  roomAndBoard    Decimal  @db.Decimal(10, 2)
+  booksAndSupplies Decimal @db.Decimal(10, 2)
+  otherExpenses   Decimal  @db.Decimal(10, 2)
+  expectedAid     Decimal  @db.Decimal(10, 2)
+  scholarships    Decimal  @db.Decimal(10, 2)
+  notes           String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+}
+
+model AIInteraction {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  prompt    String
+  response  String
+  model     String
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
+
+model Job {
+  id           String   @id @default(uuid())
+  type         String
+  payload      String
+  status       String   @default("pending")
+  attempts     Int      @default(0)
+  maxAttempts  Int      @default(3)
+  error        String?
+  scheduledFor DateTime?
+  startedAt    DateTime?
+  completedAt  DateTime?
+  createdAt    DateTime @default(now())
+
+  @@index([status])
+  @@index([scheduledFor])
+  @@index([type])
+}

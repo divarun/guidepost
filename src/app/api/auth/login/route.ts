@@ -4,6 +4,8 @@ import { verifyPassword, generateToken, setAuthToken } from '@/lib/auth';
 import { validateRequest, loginSchema } from '@/lib/utils/validators';
 import { rateLimiter, getRateLimitIdentifier } from '@/lib/ratelimit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     // Rate limiting

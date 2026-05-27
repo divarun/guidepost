@@ -40,9 +40,9 @@ export default function HomePage() {
       >
         <Logotype />
         <nav className="hidden md:flex gap-8 text-[13.5px]" style={{ color: 'var(--ink-2)' }}>
-          <a>For students</a>
-          <a>For parents</a>
-          <a>Timeline</a>
+          <Link href="/explore/students">For students</Link>
+          <Link href="/explore/parents">For parents</Link>
+          <a href="#features">Timeline</a>
         </nav>
         <div className="flex gap-4 items-center">
           <Link
@@ -67,10 +67,6 @@ export default function HomePage() {
         className="px-14 pt-20 pb-16"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
-        <div className="mb-7">
-          <SectionLabel number="01">Now in private beta</SectionLabel>
-        </div>
-
         <h1
           className="font-serif font-normal m-0 max-w-[960px]"
           style={{
@@ -79,10 +75,10 @@ export default function HomePage() {
             letterSpacing: '-0.025em',
           }}
         >
-          A quieter way to find your way
+          College planning,
           <br />
           <span className="italic" style={{ color: 'var(--muted)' }}>
-            through the college years.
+            all in one place.
           </span>
         </h1>
 
@@ -91,9 +87,8 @@ export default function HomePage() {
             className="text-[16.5px] leading-[1.55] max-w-[460px] m-0"
             style={{ color: 'var(--ink-2)' }}
           >
-            Guidepost is a calm, single-source planner for the four-year arc — essays,
-            deadlines, testing, financial aid. Built for the families who'd rather
-            think clearly than be sold to.
+            Track tasks and deadlines, write and revise your essays, manage financial
+            aid — for students and parents, in one shared workspace.
           </p>
           <div className="flex gap-3 flex-wrap">
             <Link
@@ -116,6 +111,7 @@ export default function HomePage() {
 
       {/* Feature grid */}
       <section
+        id="features"
         className="px-14 py-16"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >

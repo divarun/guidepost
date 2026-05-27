@@ -6,6 +6,8 @@ import { formatEssayFeedbackPrompt } from '@/lib/ai/prompts';
 import { guardrails } from '@/lib/ai/guardrails';
 import { aiRateLimiter } from '@/lib/ratelimit';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: NextRequest) {
   try {
     const user = await getCurrentUser();

@@ -5,6 +5,8 @@ import { validateRequest, essaySchema, updateEssaySchema } from '@/lib/utils/val
 import { calculateWordCount } from '@/lib/utils/formatters';
 import { cache, cacheKeys } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();

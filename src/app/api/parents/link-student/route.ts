@@ -3,6 +3,8 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { cache, cacheKeys } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function POST(request: Request) {
   try {
     const user = await getCurrentUser();

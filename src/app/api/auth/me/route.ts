@@ -3,6 +3,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
 import { cache, cacheKeys, cacheTTL } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const currentUser = await getCurrentUser();

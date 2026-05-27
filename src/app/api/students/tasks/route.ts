@@ -5,6 +5,8 @@ import { validateRequest, taskSchema, updateTaskSchema } from '@/lib/utils/valid
 import { isOverdue } from '@/lib/utils/dates';
 import { cache, cacheKeys } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();

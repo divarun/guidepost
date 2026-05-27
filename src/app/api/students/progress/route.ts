@@ -4,6 +4,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { isOverdue, isUpcoming } from '@/lib/utils/dates';
 import { cache, cacheKeys, cacheTTL } from '@/lib/cache';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET() {
   try {
     const user = await getCurrentUser();

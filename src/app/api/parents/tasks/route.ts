@@ -4,6 +4,8 @@ import { getCurrentUser } from '@/lib/auth';
 import { validateRequest, taskSchema, updateTaskSchema } from '@/lib/utils/validators';
 import { isOverdue } from '@/lib/utils/dates';
 
+export const dynamic = 'force-dynamic';
+
 export async function GET(request: NextRequest) {
   try {
     const user = await getCurrentUser();

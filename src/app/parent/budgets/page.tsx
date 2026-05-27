@@ -15,6 +15,7 @@ export default function BudgetsPage() {
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingBudget, setEditingBudget] = useState<any>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -117,24 +118,23 @@ export default function BudgetsPage() {
     }
   };
 
-  const handleDelete = async (budgetId: string) => {
-    if (!confirm('Are you sure you want to delete this budget?')) return;
-
+  const handleDelete = async () => {
+    if (!deletingId) return;
     try {
-      const response = await fetch(`/api/parents/budgets?id=${budgetId}`, {
+      const response = await fetch(`/api/parents/budgets?id=${deletingId}`, {
         method: 'DELETE',
       });
-
       const data = await response.json();
-
       if (data.success) {
-        showToast('Budget deleted successfully', 'success');
+        showToast('Budget deleted', 'success');
         loadBudgets();
       } else {
         showToast(data.error || 'Failed to delete budget', 'error');
       }
-    } catch (error) {
+    } catch {
       showToast('An error occurred', 'error');
+    } finally {
+      setDeletingId(null);
     }
   };
 
@@ -267,7 +267,7 @@ export default function BudgetsPage() {
                             <Button
                               variant="ghost"
                               size="sm"
-                              onClick={() => handleDelete(budget.id)}
+                              onClick={() => setDeletingId(budget.id)}
                               className="text-red-600"
                             >
                               Delete
@@ -303,6 +303,24 @@ export default function BudgetsPage() {
           </CardContent>
         </Card>
       )}
+
+      {/* Delete confirm modal */}
+      <Modal
+        isOpen={!!deletingId}
+        onClose={() => setDeletingId(null)}
+        title="Delete budget?"
+        size="sm"
+      >
+        <p className="text-[13.5px] mb-6" style={{ color: 'var(--ink-2)' }}>
+          This cannot be undone.
+        </p>
+        <ModalFooter>
+          <Button variant="secondary" onClick={() => setDeletingId(null)}>Cancel</Button>
+          <Button onClick={handleDelete} style={{ background: 'var(--alert)', color: 'var(--paper)' }}>
+            Delete
+          </Button>
+        </ModalFooter>
+      </Modal>
 
       {/* Budget Modal */}
       <Modal

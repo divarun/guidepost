@@ -1,72 +1,69 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { TopBar } from '@/components/layout/TopBar';
+import { Card, CardContent } from '@/components/ui/Card';
 import { studentTimeline } from '@/lib/constants/timelineData';
 
 export default function StudentTimelinePage() {
   return (
-    <div className="container-custom py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Application Timeline</h1>
-      <p className="text-gray-600 mb-8">
-        A comprehensive guide to help you navigate the college application process from freshman to senior year.
-      </p>
+    <>
+      <TopBar crumbs={['Timeline']} />
 
-      <div className="space-y-6">
-        {studentTimeline.map((event, index) => (
-          <Card key={index}>
-            <CardHeader>
-              <div className="flex items-center gap-4">
-                <div className="w-12 h-12 bg-primary-100 rounded-full flex items-center justify-center flex-shrink-0">
-                  <span className="text-primary-600 font-bold">{index + 1}</span>
-                </div>
-                <div>
-                  <div className="text-sm text-gray-600">{event.grade}</div>
-                  <CardTitle>
-                    {event.season}: {event.title}
-                  </CardTitle>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              <p className="text-gray-700 mb-4">{event.description}</p>
-              <div className="bg-gray-50 rounded-lg p-4">
-                <h4 className="font-medium text-gray-900 mb-3">Key Tasks:</h4>
-                <ul className="space-y-2">
-                  {event.tasks.map((task, taskIndex) => (
-                    <li key={taskIndex} className="flex items-start gap-2">
-                      <svg
-                        className="w-5 h-5 text-primary-600 flex-shrink-0 mt-0.5"
-                        fill="currentColor"
-                        viewBox="0 0 20 20"
-                      >
-                        <path
-                          fillRule="evenodd"
-                          d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z"
-                          clipRule="evenodd"
-                        />
-                      </svg>
-                      <span className="text-gray-700">{task}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
-
-      <Card className="mt-8 bg-blue-50 border-blue-200">
-        <CardContent className="text-center py-8">
-          <h3 className="text-lg font-semibold text-blue-900 mb-2">
-            Remember: This is a General Guide
-          </h3>
-          <p className="text-blue-800">
-            Every student's journey is unique. Use this timeline as a reference, but don't hesitate to
-            adjust based on your specific goals, circumstances, and the requirements of schools you're
-            interested in.
+      <div className="flex-1 overflow-auto" style={{ padding: '40px 48px 64px' }}>
+        <div className="mb-8">
+          <p className="text-[13.5px]" style={{ color: 'var(--muted)' }}>
+            A grade-by-grade guide through the college application process.
+            Timing is approximate — verify deadlines with each school.
           </p>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+
+        <div className="space-y-4">
+          {studentTimeline.map((event, index) => (
+            <Card key={index}>
+              <CardContent className="py-5">
+                <div className="flex gap-5">
+                  {/* Step number */}
+                  <div
+                    className="w-8 h-8 rounded-full flex items-center justify-center shrink-0 font-mono text-[11px]"
+                    style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}
+                  >
+                    {index + 1}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="font-mono text-[10.5px] uppercase tracking-[0.08em] mb-1" style={{ color: 'var(--muted)' }}>
+                      {event.grade}
+                    </div>
+                    <h3 className="text-[15px] mb-1" style={{ color: 'var(--ink)' }}>
+                      {event.season}: {event.title}
+                    </h3>
+                    <p className="text-[13px] mb-3" style={{ color: 'var(--ink-2)' }}>
+                      {event.description}
+                    </p>
+
+                    <ul className="space-y-1.5">
+                      {event.tasks.map((task, i) => (
+                        <li key={i} className="flex items-start gap-2 text-[13px]" style={{ color: 'var(--ink-2)' }}>
+                          <span className="mt-[3px] shrink-0" style={{ color: 'var(--accent)' }}>—</span>
+                          {task}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+
+        <div
+          className="mt-8 p-5 rounded text-[13px]"
+          style={{ border: '1px solid var(--hairline)', color: 'var(--muted)' }}
+        >
+          Every student's path is different. Use this as a reference, not a rulebook.
+          Requirements vary by school — always verify with your counselor and each institution.
+        </div>
+      </div>
+    </>
   );
 }

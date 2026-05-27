@@ -215,25 +215,25 @@ export default function FinancialAidPage() {
       <div className="grid md:grid-cols-3 gap-6 mb-8">
         <Card className="bg-blue-50 border-blue-200">
           <CardContent className="py-6">
-            <div className="text-sm text-blue-900 font-medium mb-1">FAFSA Opens</div>
-            <div className="text-2xl font-bold text-blue-900">October 1</div>
-            <div className="text-sm text-blue-700 mt-1">Open annually on Oct 1</div>
+            <div className="text-sm text-blue-900 font-medium mb-1">FAFSA</div>
+            <div className="text-lg font-bold text-blue-900">Verify opening date</div>
+            <div className="text-sm text-blue-700 mt-1">Check studentaid.gov — date varies annually</div>
           </CardContent>
         </Card>
 
         <Card className="bg-purple-50 border-purple-200">
           <CardContent className="py-6">
             <div className="text-sm text-purple-900 font-medium mb-1">CSS Profile</div>
-            <div className="text-2xl font-bold text-purple-900">School Specific</div>
-            <div className="text-sm text-purple-700 mt-1">Check individual schools</div>
+            <div className="text-lg font-bold text-purple-900">Varies by school</div>
+            <div className="text-sm text-purple-700 mt-1">Check each school's financial aid page</div>
           </CardContent>
         </Card>
 
         <Card className="bg-green-50 border-green-200">
           <CardContent className="py-6">
-            <div className="text-sm text-green-900 font-medium mb-1">Priority Deadline</div>
-            <div className="text-2xl font-bold text-green-900">February 1</div>
-            <div className="text-sm text-green-700 mt-1">Many schools' priority date</div>
+            <div className="text-sm text-green-900 font-medium mb-1">Priority Deadlines</div>
+            <div className="text-lg font-bold text-green-900">Varies by school</div>
+            <div className="text-sm text-green-700 mt-1">Often Jan–Feb — verify with each school</div>
           </CardContent>
         </Card>
       </div>

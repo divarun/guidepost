@@ -2,11 +2,13 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { TopBar } from '@/components/layout/TopBar';
 import { Loading } from '@/components/ui/Spinner';
 import { formatShortDate, getProgressPercentage } from '@/lib/utils/formatters';
 
 export default function StudentDashboard() {
+  const router = useRouter();
   const [progress, setProgress] = useState<any>(null);
   const [loading, setLoading] = useState(true);
 
@@ -37,7 +39,7 @@ export default function StudentDashboard() {
 
   return (
     <>
-      <TopBar crumbs={['Overview']} action="New task" />
+      <TopBar crumbs={['Overview']} action="New task" onAction={() => router.push('/student/tasks?new=true')} />
 
       <div className="flex-1 overflow-auto" style={{ padding: '40px 48px 64px' }}>
         {/* Greeting */}

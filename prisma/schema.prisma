@@ -181,21 +181,3 @@ model AIInteraction {
   @@index([type])
   @@index([createdAt])
 }
-
-model Job {
-  id           String   @id @default(uuid())
-  type         String
-  payload      String
-  status       String   @default("pending")
-  attempts     Int      @default(0)
-  maxAttempts  Int      @default(3)
-  error        String?
-  scheduledFor DateTime?
-  startedAt    DateTime?
-  completedAt  DateTime?
-  createdAt    DateTime @default(now())
-
-  @@index([status])
-  @@index([scheduledFor])
-  @@index([type])
-}

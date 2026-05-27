@@ -111,7 +111,7 @@ export const studentTimeline: TimelineEvent[] = [
     title: 'Application Season',
     description: 'Submit applications and stay focused',
     tasks: [
-      'Submit Early Decision/Early Action applications (Nov 1)',
+      'Submit Early Decision/Early Action applications (typically Nov 1–15 — verify with each school)',
       'Complete Regular Decision applications',
       'Submit financial aid forms',
       'Maintain strong senior grades',
@@ -124,7 +124,7 @@ export const studentTimeline: TimelineEvent[] = [
     title: 'Waiting Period',
     description: 'Complete remaining applications and wait for decisions',
     tasks: [
-      'Submit Regular Decision applications (Jan 1)',
+      'Submit Regular Decision applications (typically Jan 1–15 — verify with each school)',
       'Complete FAFSA and CSS Profile',
       'Apply for scholarships',
       'Maintain grades (avoid senioritis!)',
@@ -139,7 +139,7 @@ export const studentTimeline: TimelineEvent[] = [
       'Receive admission decisions (March-April)',
       'Compare financial aid packages',
       'Revisit top choice schools',
-      'Make final decision by May 1',
+      'Make final decision (typically May 1 — verify with each school)',
       'Submit enrollment deposit',
     ],
   },
@@ -188,7 +188,7 @@ export const parentTimeline: TimelineEvent[] = [
     title: 'Financial Aid Applications',
     description: 'Submit financial aid forms',
     tasks: [
-      'Complete FAFSA (opens Oct 1)',
+      'Complete FAFSA (verify current opening date at studentaid.gov)',
       'Submit CSS Profile if required',
       'Gather tax documents',
       'Research scholarship opportunities',

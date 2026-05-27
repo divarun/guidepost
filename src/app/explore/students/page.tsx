@@ -94,6 +94,7 @@ export default function ExploreStudentsPage() {
             <CardTitle>Upcoming Tasks</CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-400 mb-3 italic">Timing shown is approximate. Verify deadlines with each school and program.</p>
             <div className="space-y-3">
               {mockStudentTasks.slice(0, 5).map((task) => (
                 <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
@@ -106,9 +107,11 @@ export default function ExploreStudentsPage() {
                       )}
                     </div>
                   </div>
-                  {task.dueDate && (
+                  {task.dueLabel ? (
+                    <div className="text-sm text-gray-500">{task.dueLabel}</div>
+                  ) : task.dueDate ? (
                     <div className="text-sm text-gray-500">{formatShortDate(task.dueDate)}</div>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -131,7 +134,11 @@ export default function ExploreStudentsPage() {
                   <p className="text-sm text-gray-600 mb-2">{essay.prompt}</p>
                   <div className="flex justify-between text-sm text-gray-500">
                     <span>{essay.schoolName}</span>
-                    {essay.dueDate && <span>Due: {formatShortDate(essay.dueDate)}</span>}
+                    {essay.dueLabel ? (
+                      <span>{essay.dueLabel}</span>
+                    ) : essay.dueDate ? (
+                      <span>{formatShortDate(essay.dueDate)}</span>
+                    ) : null}
                   </div>
                 </div>
               ))}

@@ -8,6 +8,13 @@ import { Select } from '@/components/ui/Select';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 
+const Mark = () => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10.5" stroke="var(--ink)" strokeWidth="1" opacity="0.35" />
+    <path d="M12 3.5 L13.6 11 L20 12 L13.6 13 L12 20.5 L10.4 13 L4 12 L10.4 11 Z" fill="var(--ink)" />
+  </svg>
+);
+
 export default function RegisterPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
@@ -28,7 +35,6 @@ export default function RegisterPage() {
     e.preventDefault();
     setError('');
 
-    // Validation
     if (formData.password !== formData.confirmPassword) {
       setError('Passwords do not match');
       return;
@@ -76,7 +82,6 @@ export default function RegisterPage() {
         throw new Error(data.error || 'Registration failed');
       }
 
-      // Redirect based on role
       if (data.user.role === 'STUDENT') {
         router.push('/student/dashboard');
       } else if (data.user.role === 'PARENT') {
@@ -102,25 +107,47 @@ export default function RegisterPage() {
   });
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4"
+      style={{ background: 'var(--paper)' }}
+    >
+      <div className="w-full max-w-md">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-primary-600">
-            Guidepost
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+            <Mark />
+            <span
+              className="font-serif text-[19px] tracking-[-0.01em]"
+              style={{ color: 'var(--ink)', fontWeight: 400 }}
+            >
+              Guidepost
+            </span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Create your account</h2>
-          <p className="mt-2 text-sm text-gray-600">
+          <h2
+            className="text-[22px] font-serif font-normal"
+            style={{ color: 'var(--ink)', letterSpacing: '-0.015em' }}
+          >
+            Create your account
+          </h2>
+          <p className="mt-2 text-[13.5px]" style={{ color: 'var(--muted)' }}>
             Already have an account?{' '}
-            <Link href="/auth/login" className="font-medium text-primary-600 hover:text-primary-500">
+            <Link
+              href="/auth/login"
+              className="underline underline-offset-2"
+              style={{ color: 'var(--ink)' }}
+            >
               Sign in
             </Link>
           </p>
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+              <div
+                className="px-4 py-3 rounded text-sm border"
+                style={{ borderColor: 'var(--alert)', color: 'var(--alert)' }}
+              >
                 {error}
               </div>
             )}
@@ -142,7 +169,6 @@ export default function RegisterPage() {
                 required
                 placeholder="John"
               />
-
               <Input
                 label="Last name"
                 type="text"
@@ -164,30 +190,27 @@ export default function RegisterPage() {
             />
 
             {formData.role === 'STUDENT' && (
-              <>
-                <div className="grid grid-cols-2 gap-4">
-                  <Select
-                    label="Graduation year"
-                    value={formData.graduationYear.toString()}
-                    onChange={(e) =>
-                      setFormData({ ...formData, graduationYear: parseInt(e.target.value) })
-                    }
-                    options={graduationYearOptions}
-                    required
-                  />
-
-                  <Input
-                    label="GPA (optional)"
-                    type="number"
-                    step="0.01"
-                    min="0"
-                    max="4"
-                    value={formData.gpa}
-                    onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
-                    placeholder="3.8"
-                  />
-                </div>
-              </>
+              <div className="grid grid-cols-2 gap-4">
+                <Select
+                  label="Graduation year"
+                  value={formData.graduationYear.toString()}
+                  onChange={(e) =>
+                    setFormData({ ...formData, graduationYear: parseInt(e.target.value) })
+                  }
+                  options={graduationYearOptions}
+                  required
+                />
+                <Input
+                  label="GPA (optional)"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="4"
+                  value={formData.gpa}
+                  onChange={(e) => setFormData({ ...formData, gpa: e.target.value })}
+                  placeholder="3.8"
+                />
+              </div>
             )}
 
             {formData.role === 'PARENT' && (
@@ -198,7 +221,7 @@ export default function RegisterPage() {
                 onChange={(e) => setFormData({ ...formData, studentEmail: e.target.value })}
                 required
                 placeholder="student@example.com"
-                helperText="Enter the email of your student's account to link accounts"
+                helperText="Enter your student's email to link accounts"
               />
             )}
 
@@ -210,7 +233,7 @@ export default function RegisterPage() {
               required
               autoComplete="new-password"
               placeholder="••••••••"
-              helperText="At least 8 characters"
+              helperText="At least 8 characters with uppercase, lowercase, and a number"
             />
 
             <Input

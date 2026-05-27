@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Header } from '@/components/layout/Header';
 import { Sidebar, studentNavItems } from '@/components/layout/Sidebar';
 import { Loading } from '@/components/ui/Spinner';
 
@@ -21,29 +20,17 @@ export default function StudentLayout({ children }: { children: React.ReactNode 
         }
         setUser(data.user);
       })
-      .catch(() => {
-        router.push('/auth/login');
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+      .catch(() => router.push('/auth/login'))
+      .finally(() => setLoading(false));
   }, [router]);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (!user) {
-    return null;
-  }
+  if (loading) return <Loading />;
+  if (!user) return null;
 
   return (
-    <div className="min-h-screen flex flex-col">
-      <Header user={user} />
-      <div className="flex flex-1">
-        <Sidebar navItems={studentNavItems} />
-        <main className="flex-1 bg-gray-50">{children}</main>
-      </div>
+    <div className="flex h-screen overflow-hidden" style={{ background: 'var(--surface)' }}>
+      <Sidebar navItems={studentNavItems} user={user} />
+      <main className="flex-1 min-w-0 flex flex-col overflow-hidden">{children}</main>
     </div>
   );
 }

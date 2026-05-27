@@ -1,3 +1,5 @@
+'use client';
+
 import React, { useEffect } from 'react';
 import { clsx } from 'clsx';
 
@@ -22,15 +24,13 @@ export function Modal({
     const handleEscape = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
     };
-
     if (isOpen) {
       document.addEventListener('keydown', handleEscape);
       document.body.style.overflow = 'hidden';
     }
-
     return () => {
       document.removeEventListener('keydown', handleEscape);
-      document.body.style.overflow = 'unset';
+      document.body.style.overflow = '';
     };
   }, [isOpen, onClose]);
 
@@ -44,55 +44,58 @@ export function Modal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto">
+    <div className="fixed inset-0 z-50 overflow-y-auto animate-fade-in">
       {/* Backdrop */}
-      <div
-        className="fixed inset-0 bg-black bg-opacity-50 transition-opacity"
-        onClick={onClose}
-      />
+      <div className="fixed inset-0 bg-ink/30" onClick={onClose} />
 
-      {/* Modal */}
+      {/* Panel */}
       <div className="flex min-h-full items-center justify-center p-4">
         <div
           className={clsx(
-            'relative w-full bg-white rounded-lg shadow-xl',
+            'relative w-full rounded border border-hairline animate-slide-in',
             sizeClasses[size]
           )}
+          style={{ background: 'var(--paper)' }}
           onClick={(e) => e.stopPropagation()}
         >
-          {/* Header */}
           {(title || showCloseButton) && (
-            <div className="flex items-center justify-between p-6 border-b">
-              {title && <h3 className="text-lg font-semibold text-gray-900">{title}</h3>}
+            <div
+              className="flex items-center justify-between px-6 py-4"
+              style={{ borderBottom: '1px solid var(--hairline)' }}
+            >
+              {title && (
+                <h3 className="text-[15px] font-medium tracking-tight" style={{ color: 'var(--ink)' }}>
+                  {title}
+                </h3>
+              )}
               {showCloseButton && (
                 <button
                   onClick={onClose}
-                  className="text-gray-400 hover:text-gray-500 focus:outline-none"
+                  className="ml-auto p-1 rounded transition-colors"
+                  style={{ color: 'var(--muted)' }}
+                  onMouseEnter={(e) => (e.currentTarget.style.color = 'var(--ink)')}
+                  onMouseLeave={(e) => (e.currentTarget.style.color = 'var(--muted)')}
                 >
-                  <svg className="h-6 w-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
                   </svg>
                 </button>
               )}
             </div>
           )}
-
-          {/* Content */}
-          <div className="p-6">{children}</div>
+          <div className="px-6 py-5">{children}</div>
         </div>
       </div>
     </div>
   );
 }
 
-interface ModalFooterProps {
-  children: React.ReactNode;
-  className?: string;
-}
-
-export function ModalFooter({ children, className }: ModalFooterProps) {
+export function ModalFooter({ children, className }: { children: React.ReactNode; className?: string }) {
   return (
-    <div className={clsx('flex items-center justify-end gap-3 pt-4 border-t', className)}>
+    <div
+      className={clsx('flex items-center justify-end gap-3 pt-4 mt-2', className)}
+      style={{ borderTop: '1px solid var(--hairline)' }}
+    >
       {children}
     </div>
   );

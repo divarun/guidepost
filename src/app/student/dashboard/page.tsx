@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { TopBar } from '@/components/layout/TopBar';
 import { Loading } from '@/components/ui/Spinner';
 import { formatShortDate, getProgressPercentage } from '@/lib/utils/formatters';
 
@@ -14,264 +14,250 @@ export default function StudentDashboard() {
     fetch('/api/students/progress')
       .then((res) => res.json())
       .then((data) => {
-        if (data.success) {
-          setProgress(data.data);
-        }
+        if (data.success) setProgress(data.data);
       })
       .finally(() => setLoading(false));
   }, []);
 
-  if (loading) {
-    return <Loading />;
-  }
-
-  if (!progress) {
-    return <div className="p-8">Failed to load progress data</div>;
-  }
-
-  const completionPercentage = getProgressPercentage(
-    progress.completedTasks,
-    progress.totalTasks
+  if (loading) return <Loading />;
+  if (!progress) return (
+    <div className="p-8 text-[14px]" style={{ color: 'var(--muted)' }}>Failed to load progress data.</div>
   );
 
+  const completionPct = getProgressPercentage(progress.completedTasks, progress.totalTasks);
+  const total = progress.totalTasks || 1;
+  const today = new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+
+  const greeting = () => {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  };
+
   return (
-    <div className="container-custom py-8">
-      <h1 className="text-2xl font-bold text-gray-900 mb-8">Dashboard</h1>
+    <>
+      <TopBar crumbs={['Overview']} action="New task" />
 
-      {/* Stats Grid */}
-      <div className="grid md:grid-cols-4 gap-6 mb-8">
-        <Card>
-          <CardContent className="text-center py-6">
-            <div className="text-4xl font-bold text-primary-600 mb-2">
-              {completionPercentage}%
-            </div>
-            <div className="text-sm text-gray-600">Overall Progress</div>
-          </CardContent>
-        </Card>
+      <div className="flex-1 overflow-auto" style={{ padding: '40px 48px 64px' }}>
+        {/* Greeting */}
+        <div style={{ marginBottom: 36 }}>
+          <div
+            className="font-mono text-[11px] uppercase tracking-[0.12em] mb-3"
+            style={{ color: 'var(--muted)' }}
+          >
+            {today}
+          </div>
+          <h1
+            className="font-serif font-normal m-0"
+            style={{ fontSize: 44, letterSpacing: '-0.02em', lineHeight: 1.05 }}
+          >
+            {greeting()}.
+            <br />
+            <span className="italic" style={{ color: 'var(--muted)' }}>
+              You&apos;re {completionPct}% through your tasks.
+            </span>
+          </h1>
+        </div>
 
-        <Card>
-          <CardContent className="text-center py-6">
-            <div className="text-4xl font-bold text-gray-900 mb-2">{progress.totalTasks}</div>
-            <div className="text-sm text-gray-600">Total Tasks</div>
-          </CardContent>
-        </Card>
+        {/* Overdue alert */}
+        {progress.overdueTasks > 0 && (
+          <div
+            className="flex items-center gap-3 px-4 py-3 rounded mb-8 text-[13.5px]"
+            style={{ border: '1px solid var(--alert)', color: 'var(--alert)' }}
+          >
+            <span>—</span>
+            <span>
+              {progress.overdueTasks} overdue {progress.overdueTasks === 1 ? 'task' : 'tasks'}.{' '}
+              <Link href="/student/tasks" className="underline underline-offset-2">View tasks</Link>
+            </span>
+          </div>
+        )}
 
-        <Card>
-          <CardContent className="text-center py-6">
-            <div className="text-4xl font-bold text-green-600 mb-2">
-              {progress.completedTasks}
-            </div>
-            <div className="text-sm text-gray-600">Completed</div>
-          </CardContent>
-        </Card>
+        {/* Progress meter */}
+        <div
+          className="mb-10"
+          style={{ borderTop: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)', padding: '22px 0' }}
+        >
+          <div className="flex justify-between mb-3">
+            <span className="font-mono text-[10.5px] uppercase tracking-[0.1em]" style={{ color: 'var(--muted)' }}>
+              Application progress
+            </span>
+            <span className="font-mono text-[11px]" style={{ color: 'var(--muted)' }}>
+              {progress.completedTasks} of {progress.totalTasks} complete
+            </span>
+          </div>
 
-        <Card>
-          <CardContent className="text-center py-6">
-            <div className="text-4xl font-bold text-yellow-600 mb-2">
-              {progress.inProgressTasks}
-            </div>
-            <div className="text-sm text-gray-600">In Progress</div>
-          </CardContent>
-        </Card>
-      </div>
+          {/* Segmented bar */}
+          <div className="flex gap-[3px] mb-3">
+            {Array.from({ length: Math.min(total, 40) }).map((_, i) => {
+              const completedCount = Math.round((progress.completedTasks / total) * Math.min(total, 40));
+              const inProgressCount = Math.round((progress.inProgressTasks / total) * Math.min(total, 40));
+              let bg = 'var(--hairline)';
+              let opacity = 0.6;
+              if (i < completedCount) { bg = 'var(--ink)'; opacity = 1; }
+              else if (i < completedCount + inProgressCount) { bg = 'var(--accent)'; opacity = 1; }
+              return <div key={i} style={{ flex: 1, height: 18, background: bg, opacity }} />;
+            })}
+          </div>
 
-      {/* Overdue Alert */}
-      {progress.overdueTasks > 0 && (
-        <div className="bg-red-50 border-l-4 border-red-400 p-4 mb-8">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg
-                className="h-5 w-5 text-red-400"
-                fill="currentColor"
-                viewBox="0 0 20 20"
-              >
-                <path
-                  fillRule="evenodd"
-                  d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z"
-                  clipRule="evenodd"
-                />
-              </svg>
-            </div>
-            <div className="ml-3">
-              <p className="text-sm text-red-700">
-                <strong>Attention:</strong> You have {progress.overdueTasks} overdue{' '}
-                {progress.overdueTasks === 1 ? 'task' : 'tasks'}.{' '}
-                <Link href="/student/tasks" className="font-medium underline">
-                  View tasks
-                </Link>
-              </p>
-            </div>
+          <div className="flex gap-6 text-[12px]" style={{ color: 'var(--muted)' }}>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'var(--ink)' }} />
+              Complete ({progress.completedTasks})
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'var(--accent)' }} />
+              In progress ({progress.inProgressTasks})
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'var(--hairline)', outline: '1px solid var(--hairline)' }} />
+              Not started ({Math.max(0, progress.totalTasks - progress.completedTasks - progress.inProgressTasks)})
+            </span>
+            {progress.overdueTasks > 0 && (
+              <span className="flex items-center gap-1.5" style={{ color: 'var(--alert)' }}>
+                <span className="w-1.5 h-1.5 rounded-full inline-block" style={{ background: 'var(--alert)' }} />
+                Overdue ({progress.overdueTasks})
+              </span>
+            )}
           </div>
         </div>
-      )}
 
-      <div className="grid md:grid-cols-2 gap-8">
-        {/* Upcoming Deadlines */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Upcoming Deadlines</CardTitle>
-              <Link
-                href="/student/tasks"
-                className="text-sm text-primary-600 hover:text-primary-700"
-              >
-                View all
+        {/* Two columns */}
+        <div className="grid gap-14" style={{ gridTemplateColumns: '1.4fr 1fr' }}>
+          {/* Upcoming deadlines */}
+          <div>
+            <div className="flex justify-between items-baseline mb-4">
+              <span className="font-mono text-[10.5px] uppercase tracking-[0.1em] flex items-center gap-3" style={{ color: 'var(--muted)' }}>
+                <span style={{ color: 'var(--ink)' }}>i</span>
+                <span>Up next</span>
+              </span>
+              <Link href="/student/tasks" className="text-[12px] underline underline-offset-[3px]" style={{ color: 'var(--ink-2)' }}>
+                All tasks →
               </Link>
             </div>
-          </CardHeader>
-          <CardContent>
-            {progress.upcomingDeadlines.length > 0 ? (
-              <div className="space-y-3">
-                {progress.upcomingDeadlines.map((task: any) => (
+
+            <div>
+              {progress.upcomingDeadlines.length === 0 ? (
+                <div
+                  className="py-4 text-[13.5px]"
+                  style={{ borderTop: '1px solid var(--hairline)', color: 'var(--muted)' }}
+                >
+                  No upcoming deadlines
+                </div>
+              ) : (
+                progress.upcomingDeadlines.map((task: any, i: number) => (
                   <div
                     key={task.id}
-                    className="flex items-center justify-between p-3 bg-gray-50 rounded-lg"
+                    className="grid gap-4 items-baseline py-[14px]"
+                    style={{
+                      gridTemplateColumns: '64px 1fr auto',
+                      borderTop: i === 0 ? '1px solid var(--hairline)' : 'none',
+                      borderBottom: '1px solid var(--hairline)',
+                    }}
                   >
-                    <div className="flex-1">
-                      <div className="font-medium text-gray-900">{task.title}</div>
-                      <div className="text-sm text-gray-500">{task.category}</div>
+                    {/* Date column */}
+                    <div>
+                      <div className="font-mono text-[10.5px]" style={{ color: 'var(--muted)' }}>
+                        {task.dueDate ? new Date(task.dueDate).toLocaleDateString('en-US', { weekday: 'short' }) : '—'}
+                      </div>
+                      <div className="font-serif text-[19px] tracking-[-0.01em]" style={{ color: 'var(--ink)' }}>
+                        {task.dueDate ? formatShortDate(task.dueDate) : '—'}
+                      </div>
                     </div>
-                    <div className="text-sm text-gray-600">
-                      {formatShortDate(task.dueDate)}
+
+                    {/* Task info */}
+                    <div>
+                      <div className="text-[14.5px] mb-1.5 tracking-[-0.005em]" style={{ color: 'var(--ink)' }}>
+                        {task.title}
+                      </div>
+                      <span
+                        className="font-mono text-[10.5px] uppercase tracking-[0.06em] px-2 py-0.5 rounded-full border"
+                        style={{ color: 'var(--ink-2)', borderColor: 'var(--hairline)' }}
+                      >
+                        {task.category?.toLowerCase().replace('_', ' ')}
+                      </span>
+                    </div>
+
+                    {/* Checkbox */}
+                    <div
+                      className="w-3.5 h-3.5 rounded-sm"
+                      style={{ border: '1.5px solid var(--hairline)' }}
+                    />
+                  </div>
+                ))
+              )}
+            </div>
+          </div>
+
+          {/* Essay progress */}
+          <div className="flex flex-col gap-9">
+            <div>
+              <div className="flex justify-between items-baseline mb-4">
+                <span className="font-mono text-[10.5px] uppercase tracking-[0.1em] flex items-center gap-3" style={{ color: 'var(--muted)' }}>
+                  <span style={{ color: 'var(--ink)' }}>ii</span>
+                  <span>Essays in progress</span>
+                </span>
+                <Link href="/student/essays" className="text-[12px] underline underline-offset-[3px]" style={{ color: 'var(--ink-2)' }}>
+                  Open editor →
+                </Link>
+              </div>
+
+              <div>
+                {[
+                  { label: 'Total', value: progress.essayProgress.total, suffix: null },
+                  { label: 'Draft', value: progress.essayProgress.draft, suffix: null },
+                  { label: 'In review', value: progress.essayProgress.inReview, suffix: null },
+                  { label: 'Final', value: progress.essayProgress.final, suffix: null },
+                ].map((row, i) => (
+                  <div
+                    key={row.label}
+                    className="flex justify-between items-baseline py-3"
+                    style={{
+                      borderTop: i === 0 ? '1px solid var(--hairline)' : 'none',
+                      borderBottom: '1px solid var(--hairline)',
+                    }}
+                  >
+                    <span className="text-[13.5px]" style={{ color: 'var(--ink-2)' }}>{row.label}</span>
+                    <span className="font-serif text-[22px] tracking-[-0.02em]" style={{ color: 'var(--ink)' }}>
+                      {row.value}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* At-a-glance grid */}
+            <div>
+              <div className="font-mono text-[10.5px] uppercase tracking-[0.1em] flex items-center gap-3 mb-4" style={{ color: 'var(--muted)' }}>
+                <span style={{ color: 'var(--ink)' }}>iii</span>
+                <span>At a glance</span>
+              </div>
+              <div style={{ border: '1px solid var(--hairline)' }}>
+                {[
+                  { l: 'Total tasks', v: progress.totalTasks.toString() },
+                  { l: 'Completed', v: progress.completedTasks.toString() },
+                  { l: 'In progress', v: progress.inProgressTasks.toString() },
+                  { l: 'Overall progress', v: `${completionPct}%` },
+                ].map((c, i) => (
+                  <div
+                    key={c.l}
+                    className="px-[18px] py-4 flex items-baseline justify-between"
+                    style={{ borderBottom: i < 3 ? '1px solid var(--hairline)' : 'none' }}
+                  >
+                    <div className="font-mono text-[10px] uppercase tracking-[0.1em]" style={{ color: 'var(--muted)' }}>
+                      {c.l}
+                    </div>
+                    <div className="font-serif text-[26px] tracking-[-0.02em]" style={{ color: 'var(--ink)' }}>
+                      {c.v}
                     </div>
                   </div>
                 ))}
               </div>
-            ) : (
-              <p className="text-gray-500 text-center py-4">No upcoming deadlines</p>
-            )}
-          </CardContent>
-        </Card>
-
-        {/* Essay Progress */}
-        <Card>
-          <CardHeader>
-            <div className="flex justify-between items-center">
-              <CardTitle>Essay Progress</CardTitle>
-              <Link
-                href="/student/essays"
-                className="text-sm text-primary-600 hover:text-primary-700"
-              >
-                View all
-              </Link>
             </div>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-4">
-              <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Total Essays</span>
-                <span className="text-2xl font-bold text-gray-900">
-                  {progress.essayProgress.total}
-                </span>
-              </div>
-              <div className="space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Draft</span>
-                  <span className="font-medium">{progress.essayProgress.draft}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">In Review</span>
-                  <span className="font-medium">{progress.essayProgress.inReview}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span className="text-gray-600">Final</span>
-                  <span className="font-medium text-green-600">
-                    {progress.essayProgress.final}
-                  </span>
-                </div>
-              </div>
-              <Link href="/student/essays" className="btn-primary w-full mt-4">
-                Manage Essays
-              </Link>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      {/* Quick Actions */}
-      <Card className="mt-8">
-        <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="grid md:grid-cols-3 gap-4">
-            <Link
-              href="/student/tasks"
-              className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <svg
-                  className="w-8 h-8 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M12 6v6m0 0v6m0-6h6m-6 0H6"
-                  />
-                </svg>
-                <div>
-                  <div className="font-medium text-gray-900">Add Task</div>
-                  <div className="text-sm text-gray-600">Track a new deadline</div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/student/essays"
-              className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <svg
-                  className="w-8 h-8 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"
-                  />
-                </svg>
-                <div>
-                  <div className="font-medium text-gray-900">New Essay</div>
-                  <div className="text-sm text-gray-600">Start writing</div>
-                </div>
-              </div>
-            </Link>
-
-            <Link
-              href="/student/timeline"
-              className="p-4 border border-gray-200 rounded-lg hover:border-primary-300 hover:bg-primary-50 transition-colors"
-            >
-              <div className="flex items-center gap-3">
-                <svg
-                  className="w-8 h-8 text-primary-600"
-                  fill="none"
-                  stroke="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth={2}
-                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"
-                  />
-                </svg>
-                <div>
-                  <div className="font-medium text-gray-900">View Timeline</div>
-                  <div className="text-sm text-gray-600">Application roadmap</div>
-                </div>
-              </div>
-            </Link>
           </div>
-        </CardContent>
-      </Card>
-    </div>
+        </div>
+      </div>
+    </>
   );
 }

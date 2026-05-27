@@ -7,7 +7,7 @@ interface RateLimitConfig {
 
 const defaultConfig: RateLimitConfig = {
   maxRequests: parseInt(process.env.RATE_LIMIT_MAX_REQUESTS || '100'),
-  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'), // 1 minute
+  windowMs: parseInt(process.env.RATE_LIMIT_WINDOW_MS || '60000'),
 };
 
 export class RateLimiter {
@@ -17,27 +17,19 @@ export class RateLimiter {
     this.config = { ...defaultConfig, ...config };
   }
 
-  async checkLimit(identifier: string): Promise<{ allowed: boolean; remaining: number; resetAt: number }> {
+  checkLimit(identifier: string): { allowed: boolean; remaining: number; resetAt: number } {
     const key = `ratelimit:${identifier}`;
     const now = Date.now();
-    const windowStart = now - this.config.windowMs;
 
-    // Get current count
-    const countStr = await cache.get(key);
+    const countStr = cache.get(key);
     const currentCount = countStr ? parseInt(countStr) : 0;
 
     if (currentCount >= this.config.maxRequests) {
-      const ttl = this.config.windowMs / 1000;
-      return {
-        allowed: false,
-        remaining: 0,
-        resetAt: now + this.config.windowMs,
-      };
+      return { allowed: false, remaining: 0, resetAt: now + this.config.windowMs };
     }
 
-    // Increment count
     const newCount = currentCount + 1;
-    await cache.set(key, newCount.toString(), Math.ceil(this.config.windowMs / 1000));
+    cache.set(key, newCount.toString(), Math.ceil(this.config.windowMs / 1000));
 
     return {
       allowed: true,
@@ -46,26 +38,21 @@ export class RateLimiter {
     };
   }
 
-  async resetLimit(identifier: string): Promise<void> {
-    const key = `ratelimit:${identifier}`;
-    await cache.del(key);
+  resetLimit(identifier: string): void {
+    cache.del(`ratelimit:${identifier}`);
   }
 }
 
 export const rateLimiter = new RateLimiter();
 
-// AI-specific rate limiter (more restrictive)
 export const aiRateLimiter = new RateLimiter({
   maxRequests: 10,
-  windowMs: 60000, // 10 requests per minute
+  windowMs: 60000,
 });
 
 export function getRateLimitIdentifier(request: Request): string {
-  // In production, you'd use the IP address or user ID
-  // For now, we'll use a combination of user-agent and a simple hash
-  const userAgent = request.headers.get('user-agent') || 'unknown';
   const forwarded = request.headers.get('x-forwarded-for');
-  const ip = forwarded ? forwarded.split(',')[0] : 'unknown';
-
-  return `${ip}:${userAgent.substring(0, 50)}`;
+  const ip = forwarded ? forwarded.split(',')[0].trim() : 'unknown';
+  const ua = (request.headers.get('user-agent') || '').substring(0, 50);
+  return `${ip}:${ua}`;
 }

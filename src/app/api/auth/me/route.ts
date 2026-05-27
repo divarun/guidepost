@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { getCurrentUser } from '@/lib/auth';
 import { prisma } from '@/lib/prisma';
+import { cache, cacheKeys, cacheTTL } from '@/lib/cache';
 
 export async function GET() {
   try {
@@ -13,7 +14,14 @@ export async function GET() {
       );
     }
 
-    // Fetch full user details
+    const key = cacheKeys.user(currentUser.id);
+    const cached = cache.get(key);
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached), {
+        headers: { 'Cache-Control': 'private, max-age=60' },
+      });
+    }
+
     const user = await prisma.user.findUnique({
       where: { id: currentUser.id },
       select: {
@@ -37,9 +45,11 @@ export async function GET() {
       );
     }
 
-    return NextResponse.json({
-      success: true,
-      user,
+    const body = { success: true, user };
+    cache.set(key, JSON.stringify(body), cacheTTL.user);
+
+    return NextResponse.json(body, {
+      headers: { 'Cache-Control': 'private, max-age=60' },
     });
   } catch (error) {
     console.error('Get current user error:', error);

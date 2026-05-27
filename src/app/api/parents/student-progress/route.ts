@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { isOverdue, isUpcoming } from '@/lib/utils/dates';
+import { cache, cacheKeys, cacheTTL } from '@/lib/cache';
 
 export async function GET() {
   try {
@@ -10,7 +11,6 @@ export async function GET() {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Verify parent has a linked student
     if (!user.studentId) {
       return NextResponse.json(
         { success: false, error: 'No student linked to this parent account' },
@@ -18,18 +18,39 @@ export async function GET() {
       );
     }
 
-    // Get student information
-    const student = await prisma.user.findUnique({
-      where: { id: user.studentId },
-      select: {
-        id: true,
-        firstName: true,
-        lastName: true,
-        email: true,
-        graduationYear: true,
-        gpa: true,
-      },
-    });
+    const key = cacheKeys.parentProgress(user.id);
+    const cached = cache.get(key);
+    if (cached) {
+      return NextResponse.json(JSON.parse(cached), {
+        headers: { 'Cache-Control': 'private, max-age=30' },
+      });
+    }
+
+    const [student, tasks, essays] = await Promise.all([
+      prisma.user.findUnique({
+        where: { id: user.studentId },
+        select: {
+          id: true,
+          firstName: true,
+          lastName: true,
+          email: true,
+          graduationYear: true,
+          gpa: true,
+        },
+      }),
+      prisma.task.findMany({ where: { userId: user.studentId } }),
+      prisma.essay.findMany({
+        where: { userId: user.studentId },
+        select: {
+          id: true,
+          title: true,
+          status: true,
+          schoolName: true,
+          dueDate: true,
+          wordCount: true,
+        },
+      }),
+    ]);
 
     if (!student) {
       return NextResponse.json(
@@ -38,49 +59,26 @@ export async function GET() {
       );
     }
 
-    // Get student's tasks
-    const tasks = await prisma.task.findMany({
-      where: { userId: student.id },
-    });
-
-    const totalTasks = tasks.length;
-    const completedTasks = tasks.filter((t) => t.status === 'COMPLETED').length;
-    const inProgressTasks = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
-    const overdueTasks = tasks.filter(
+    const completedTasks   = tasks.filter((t) => t.status === 'COMPLETED').length;
+    const inProgressTasks  = tasks.filter((t) => t.status === 'IN_PROGRESS').length;
+    const overdueTasks     = tasks.filter(
       (t) => t.dueDate && t.status !== 'COMPLETED' && isOverdue(t.dueDate)
     ).length;
 
-    // Get upcoming deadlines
     const upcomingDeadlines = tasks
       .filter((t) => t.dueDate && t.status !== 'COMPLETED' && isUpcoming(t.dueDate, 14))
-      .sort((a, b) => {
-        if (!a.dueDate || !b.dueDate) return 0;
-        return new Date(a.dueDate).getTime() - new Date(b.dueDate).getTime();
-      })
+      .sort((a, b) => new Date(a.dueDate!).getTime() - new Date(b.dueDate!).getTime())
       .slice(0, 5);
 
-    // Get essay progress
-    const essays = await prisma.essay.findMany({
-      where: { userId: student.id },
-      select: {
-        id: true,
-        title: true,
-        status: true,
-        schoolName: true,
-        dueDate: true,
-        wordCount: true,
-      },
-    });
-
     const essayProgress = {
-      total: essays.length,
-      draft: essays.filter((e) => e.status === 'DRAFT').length,
+      total:    essays.length,
+      draft:    essays.filter((e) => e.status === 'DRAFT').length,
       inReview: essays.filter((e) => e.status === 'IN_REVIEW').length,
-      revised: essays.filter((e) => e.status === 'REVISED').length,
-      final: essays.filter((e) => e.status === 'FINAL').length,
+      revised:  essays.filter((e) => e.status === 'REVISED').length,
+      final:    essays.filter((e) => e.status === 'FINAL').length,
     };
 
-    return NextResponse.json({
+    const body = {
       success: true,
       data: {
         student: {
@@ -90,7 +88,7 @@ export async function GET() {
           gpa: student.gpa,
         },
         progress: {
-          totalTasks,
+          totalTasks: tasks.length,
           completedTasks,
           inProgressTasks,
           overdueTasks,
@@ -99,6 +97,12 @@ export async function GET() {
           essays,
         },
       },
+    };
+
+    cache.set(key, JSON.stringify(body), cacheTTL.progress);
+
+    return NextResponse.json(body, {
+      headers: { 'Cache-Control': 'private, max-age=30' },
     });
   } catch (error) {
     console.error('Get student progress error:', error);

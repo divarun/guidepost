@@ -7,18 +7,9 @@ export interface EssayFeedbackRequest {
 export interface EssayFeedbackResponse {
   success: boolean;
   feedback?: {
-    narrativeClarity: {
-      score: number;
-      comments: string;
-    };
-    promptAlignment: {
-      score: number;
-      comments: string;
-    };
-    specificityVsGenerality: {
-      score: number;
-      comments: string;
-    };
+    narrativeClarity: { score: number; comments: string };
+    promptAlignment: { score: number; comments: string };
+    specificityVsGenerality: { score: number; comments: string };
     revisionSuggestions: string[];
     overallAssessment: string;
   };
@@ -46,9 +37,9 @@ export interface FinancialAidSummaryResponse {
   error?: string;
 }
 
-export interface OllamaRequest {
+export interface NIMRequest {
   model: string;
-  prompt: string;
+  messages: { role: string; content: string }[];
   stream?: boolean;
   options?: {
     temperature?: number;
@@ -57,9 +48,13 @@ export interface OllamaRequest {
   };
 }
 
-export interface OllamaResponse {
-  model: string;
-  created_at: string;
-  response: string;
-  done: boolean;
+export interface NIMResponse {
+  id: string;
+  object: string;
+  choices: {
+    index: number;
+    message: { role: string; content: string };
+    finish_reason: string;
+  }[];
+  usage: { prompt_tokens: number; completion_tokens: number; total_tokens: number };
 }

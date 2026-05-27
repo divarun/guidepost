@@ -64,9 +64,11 @@ export function PublicStudentView() {
                     )}
                   </div>
                 </div>
-                {task.dueDate && (
+                {task.dueLabel ? (
+                  <div className="text-sm text-gray-500">{task.dueLabel}</div>
+                ) : task.dueDate ? (
                   <div className="text-sm text-gray-500">{formatShortDate(task.dueDate)}</div>
-                )}
+                ) : null}
               </div>
             ))}
           </div>
@@ -80,7 +82,7 @@ export function PublicStudentView() {
         </CardHeader>
         <CardContent>
           <p className="text-gray-600 mb-4">
-            Write, revise, and get AI-powered feedback on your college essays with version history.
+            Write, revise, and get AI-powered feedback on your college essays.
           </p>
           <div className="space-y-4">
             {mockEssays.map((essay) => (
@@ -92,7 +94,11 @@ export function PublicStudentView() {
                 <p className="text-sm text-gray-600 mb-2 line-clamp-2">{essay.prompt}</p>
                 <div className="flex justify-between text-sm text-gray-500">
                   <span>{essay.schoolName}</span>
-                  {essay.dueDate && <span>Due: {formatShortDate(essay.dueDate)}</span>}
+                  {essay.dueLabel ? (
+                    <span>{essay.dueLabel}</span>
+                  ) : essay.dueDate ? (
+                    <span>{formatShortDate(essay.dueDate)}</span>
+                  ) : null}
                 </div>
               </div>
             ))}
@@ -141,7 +147,7 @@ export function PublicStudentView() {
             </svg>
             <h3 className="font-semibold text-gray-900 mb-2">AI Feedback</h3>
             <p className="text-sm text-gray-600">
-              Get structured feedback on your essays powered by local AI
+              Get structured feedback on your essays powered by AI
             </p>
           </CardContent>
         </Card>

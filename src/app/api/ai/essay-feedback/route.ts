@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
-import { ollama } from '@/lib/ai/ollama';
+import { nim } from '@/lib/ai/nvidia-nim';
 import { formatEssayFeedbackPrompt } from '@/lib/ai/prompts';
 import { guardrails } from '@/lib/ai/guardrails';
-import { aiRateLimiter, getRateLimitIdentifier } from '@/lib/ratelimit';
+import { aiRateLimiter } from '@/lib/ratelimit';
 
 export async function POST(request: NextRequest) {
   try {
@@ -13,18 +13,11 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
     }
 
-    // AI-specific rate limiting
     const identifier = `ai:${user.id}`;
     const rateLimit = await aiRateLimiter.checkLimit(identifier);
-
     if (!rateLimit.allowed) {
       return NextResponse.json(
-        {
-          success: false,
-          error: 'Too many AI requests. Please try again in a minute.',
-          remaining: rateLimit.remaining,
-          resetAt: rateLimit.resetAt,
-        },
+        { success: false, error: 'Too many AI requests. Please try again in a minute.', remaining: rateLimit.remaining, resetAt: rateLimit.resetAt },
         { status: 429 }
       );
     }
@@ -39,90 +32,52 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Verify essay ownership
-    const essay = await prisma.essay.findUnique({
-      where: { id: essayId },
-    });
-
+    const essay = await prisma.essay.findUnique({ where: { id: essayId } });
     if (!essay || essay.userId !== user.id) {
       return NextResponse.json({ success: false, error: 'Essay not found' }, { status: 404 });
     }
 
-    // Validate content
     const contentValidation = guardrails.validateEssayContent(content);
     if (!contentValidation.valid) {
-      return NextResponse.json(
-        { success: false, error: contentValidation.error },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: contentValidation.error }, { status: 400 });
     }
 
-    // Check content safety
-    const safetyCheck = await guardrails.checkContent(content);
+    const safetyCheck = guardrails.checkContent(content);
     if (!safetyCheck.safe) {
-      return NextResponse.json(
-        { success: false, error: safetyCheck.reason || 'Content failed safety check' },
-        { status: 400 }
-      );
+      return NextResponse.json({ success: false, error: safetyCheck.reason }, { status: 400 });
     }
 
-    // Generate AI feedback
     const aiPrompt = formatEssayFeedbackPrompt(prompt, content);
-    const aiResponse = await ollama.generate(aiPrompt, { temperature: 0.3 });
+    const aiResponse = await nim.generate(aiPrompt, { temperature: 0.3, max_tokens: 1024 });
 
-    // Parse structured response
-    const feedback = guardrails.parseJSONResponse(aiResponse);
-
+    const feedback = guardrails.parseJSONResponse<any>(aiResponse);
     if (!feedback) {
-      return NextResponse.json(
-        { success: false, error: 'Failed to parse AI response' },
-        { status: 500 }
-      );
+      return NextResponse.json({ success: false, error: 'Failed to parse AI response' }, { status: 500 });
     }
 
-    // Save AI interaction
+    const model = process.env.NVIDIA_NIM_MODEL || 'meta/llama-3.1-70b-instruct';
+
     await prisma.aIInteraction.create({
-      data: {
-        userId: user.id,
-        type: 'essay-feedback',
-        prompt: aiPrompt,
-        response: JSON.stringify(feedback),
-        model: process.env.OLLAMA_MODEL || 'llama3',
-      },
+      data: { userId: user.id, type: 'essay-feedback', prompt: aiPrompt, response: JSON.stringify(feedback), model },
     });
 
-    // Save feedback to essay
     await prisma.essayFeedback.create({
-      data: {
-        essayId,
-        feedback: JSON.stringify(feedback),
-        isAI: true,
-      },
+      data: { essayId, feedback: JSON.stringify(feedback), isAI: true },
     });
 
     return NextResponse.json({
       success: true,
       feedback: {
-        narrativeClarity: feedback.narrativeClarity || { score: 0, comments: 'No analysis available' },
-        promptAlignment: feedback.promptAlignment || { score: 0, comments: 'No analysis available' },
-        specificityVsGenerality: feedback.specificityVsGenerality || { score: 0, comments: 'No analysis available' },
-        revisionSuggestions: feedback.revisionSuggestions || [],
-        overallAssessment: feedback.overallAssessment || 'No assessment available',
+        narrativeClarity: feedback.narrativeClarity ?? { score: 0, comments: 'No analysis available' },
+        promptAlignment: feedback.promptAlignment ?? { score: 0, comments: 'No analysis available' },
+        specificityVsGenerality: feedback.specificityVsGenerality ?? { score: 0, comments: 'No analysis available' },
+        revisionSuggestions: feedback.revisionSuggestions ?? [],
+        overallAssessment: feedback.overallAssessment ?? 'No assessment available',
       },
     });
   } catch (error) {
     console.error('Essay feedback error:', error);
-
-    if (error instanceof Error && error.message.includes('Ollama')) {
-      return NextResponse.json(
-        { success: false, error: 'AI service unavailable. Please ensure Ollama is running.' },
-        { status: 503 }
-      );
-    }
-
-    return NextResponse.json(
-      { success: false, error: 'Failed to generate essay feedback' },
-      { status: 500 }
-    );
+    const message = error instanceof Error ? error.message : 'Failed to generate essay feedback';
+    return NextResponse.json({ success: false, error: message }, { status: 503 });
   }
 }

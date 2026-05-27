@@ -99,11 +99,12 @@ export default function ExploreParentsPage() {
             <CardTitle>Financial Aid Tasks</CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-400 mb-3 italic">Timing shown is approximate. Verify deadlines with each school and program.</p>
             <div className="space-y-3">
               {mockParentTasks.map((task) => (
                 <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
                   <div className="flex items-center gap-3">
-                    <input type="checkbox" checked={task.status === 'COMPLETED'} readOnly className="h-4 w-4" />
+                    <input type="checkbox" checked={(task.status as string) === 'COMPLETED'} readOnly className="h-4 w-4" />
                     <div>
                       <div className="font-medium text-gray-900">{task.title}</div>
                       {task.description && (
@@ -111,9 +112,11 @@ export default function ExploreParentsPage() {
                       )}
                     </div>
                   </div>
-                  {task.dueDate && (
+                  {task.dueLabel ? (
+                    <div className="text-sm text-gray-500">{task.dueLabel}</div>
+                  ) : task.dueDate ? (
                     <div className="text-sm text-gray-500">{formatShortDate(task.dueDate)}</div>
-                  )}
+                  ) : null}
                 </div>
               ))}
             </div>
@@ -126,6 +129,7 @@ export default function ExploreParentsPage() {
             <CardTitle>College Cost Comparison</CardTitle>
           </CardHeader>
           <CardContent>
+            <p className="text-xs text-gray-400 mb-3 italic">Figures are illustrative examples. Actual costs and aid vary — verify with each school.</p>
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-gray-50">

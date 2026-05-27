@@ -3,6 +3,7 @@ import { prisma } from '@/lib/prisma';
 import { getCurrentUser } from '@/lib/auth';
 import { validateRequest, essaySchema, updateEssaySchema } from '@/lib/utils/validators';
 import { calculateWordCount } from '@/lib/utils/formatters';
+import { cache, cacheKeys } from '@/lib/cache';
 
 export async function GET(request: NextRequest) {
   try {
@@ -77,10 +78,8 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: essay,
-    }, { status: 201 });
+    cache.del(cacheKeys.studentProgress(user.id));
+    return NextResponse.json({ success: true, data: essay }, { status: 201 });
   } catch (error) {
     console.error('Create essay error:', error);
     return NextResponse.json(
@@ -158,10 +157,8 @@ export async function PATCH(request: NextRequest) {
       },
     });
 
-    return NextResponse.json({
-      success: true,
-      data: essay,
-    });
+    cache.del(cacheKeys.studentProgress(user.id));
+    return NextResponse.json({ success: true, data: essay });
   } catch (error) {
     console.error('Update essay error:', error);
     return NextResponse.json(
@@ -201,10 +198,8 @@ export async function DELETE(request: NextRequest) {
       where: { id },
     });
 
-    return NextResponse.json({
-      success: true,
-      message: 'Essay deleted successfully',
-    });
+    cache.del(cacheKeys.studentProgress(user.id));
+    return NextResponse.json({ success: true, message: 'Essay deleted successfully' });
   } catch (error) {
     console.error('Delete essay error:', error);
     return NextResponse.json(

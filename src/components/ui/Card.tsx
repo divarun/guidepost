@@ -5,18 +5,27 @@ interface CardProps {
   children: React.ReactNode;
   className?: string;
   padding?: 'none' | 'sm' | 'md' | 'lg';
+  hover?: boolean;
 }
 
-export function Card({ children, className, padding = 'md' }: CardProps) {
+export function Card({ children, className, padding = 'md', hover = false }: CardProps) {
   const paddingStyles = {
     none: '',
-    sm: 'p-4',
-    md: 'p-6',
-    lg: 'p-8',
+    sm:   'p-4',
+    md:   'p-6',
+    lg:   'p-8',
   };
 
   return (
-    <div className={clsx('bg-white rounded-lg shadow-sm border border-gray-200', paddingStyles[padding], className)}>
+    <div
+      className={clsx(
+        'rounded border border-hairline',
+        hover && 'transition-colors hover:border-ink-2/40',
+        paddingStyles[padding],
+        className
+      )}
+      style={{ background: 'var(--paper)' }}
+    >
       {children}
     </div>
   );
@@ -28,7 +37,7 @@ interface CardHeaderProps {
 }
 
 export function CardHeader({ children, className }: CardHeaderProps) {
-  return <div className={clsx('mb-4', className)}>{children}</div>;
+  return <div className={clsx('mb-5', className)}>{children}</div>;
 }
 
 interface CardTitleProps {
@@ -37,7 +46,11 @@ interface CardTitleProps {
 }
 
 export function CardTitle({ children, className }: CardTitleProps) {
-  return <h3 className={clsx('text-lg font-semibold text-gray-900', className)}>{children}</h3>;
+  return (
+    <h3 className={clsx('text-base font-medium tracking-tight', className)} style={{ color: 'var(--ink)' }}>
+      {children}
+    </h3>
+  );
 }
 
 interface CardContentProps {

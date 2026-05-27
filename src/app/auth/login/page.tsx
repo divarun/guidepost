@@ -7,6 +7,13 @@ import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { Card } from '@/components/ui/Card';
 
+const Mark = () => (
+  <svg width={20} height={20} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10.5" stroke="var(--ink)" strokeWidth="1" opacity="0.35" />
+    <path d="M12 3.5 L13.6 11 L20 12 L13.6 13 L12 20.5 L10.4 13 L4 12 L10.4 11 Z" fill="var(--ink)" />
+  </svg>
+);
+
 export default function LoginPage() {
   const router = useRouter();
   const [email, setEmail] = useState('');
@@ -32,7 +39,6 @@ export default function LoginPage() {
         throw new Error(data.error || 'Login failed');
       }
 
-      // Redirect based on role
       if (data.user.role === 'STUDENT') {
         router.push('/student/dashboard');
       } else if (data.user.role === 'PARENT') {
@@ -50,25 +56,47 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-primary-50 to-secondary-50 flex items-center justify-center py-12 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-md w-full">
+    <div
+      className="min-h-screen flex items-center justify-center py-12 px-4"
+      style={{ background: 'var(--paper)' }}
+    >
+      <div className="w-full max-w-sm">
+        {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold text-primary-600">
-            Guidepost
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+            <Mark />
+            <span
+              className="font-serif text-[19px] tracking-[-0.01em]"
+              style={{ color: 'var(--ink)', fontWeight: 400 }}
+            >
+              Guidepost
+            </span>
           </Link>
-          <h2 className="mt-6 text-3xl font-bold text-gray-900">Welcome back</h2>
-          <p className="mt-2 text-sm text-gray-600">
-            Don't have an account?{' '}
-            <Link href="/auth/register" className="font-medium text-primary-600 hover:text-primary-500">
-              Sign up
+          <h2
+            className="text-[22px] font-serif font-normal"
+            style={{ color: 'var(--ink)', letterSpacing: '-0.015em' }}
+          >
+            Welcome back
+          </h2>
+          <p className="mt-2 text-[13.5px]" style={{ color: 'var(--muted)' }}>
+            Don&apos;t have an account?{' '}
+            <Link
+              href="/auth/register"
+              className="underline underline-offset-2"
+              style={{ color: 'var(--ink)' }}
+            >
+              Sign up free
             </Link>
           </p>
         </div>
 
         <Card>
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-5">
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-md text-sm">
+              <div
+                className="px-4 py-3 rounded text-sm border"
+                style={{ background: 'transparent', borderColor: 'var(--alert)', color: 'var(--alert)' }}
+              >
                 {error}
               </div>
             )}
@@ -99,23 +127,31 @@ export default function LoginPage() {
           </form>
 
           <div className="mt-6">
-            <div className="relative">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-gray-300" />
-              </div>
-              <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Demo Accounts</span>
-              </div>
+            <div className="h-rule mb-5" />
+            <div
+              className="font-mono text-[10px] uppercase tracking-[0.12em] mb-3"
+              style={{ color: 'var(--muted)' }}
+            >
+              Demo accounts
             </div>
-
-            <div className="mt-4 space-y-2 text-sm">
-              <div className="p-3 bg-gray-50 rounded-md">
-                <div className="font-medium text-gray-900">Student</div>
-                <div className="text-gray-600">student1@example.com / password123</div>
+            <div className="space-y-2 text-sm">
+              <div
+                className="p-3 rounded border text-[12.5px]"
+                style={{ background: 'var(--surface)', borderColor: 'var(--hairline)' }}
+              >
+                <div className="font-medium" style={{ color: 'var(--ink)' }}>Student</div>
+                <div className="mt-0.5 font-mono text-[11px]" style={{ color: 'var(--muted)' }}>
+                  student1@example.com / password123
+                </div>
               </div>
-              <div className="p-3 bg-gray-50 rounded-md">
-                <div className="font-medium text-gray-900">Parent</div>
-                <div className="text-gray-600">parent1@example.com / password123</div>
+              <div
+                className="p-3 rounded border text-[12.5px]"
+                style={{ background: 'var(--surface)', borderColor: 'var(--hairline)' }}
+              >
+                <div className="font-medium" style={{ color: 'var(--ink)' }}>Parent</div>
+                <div className="mt-0.5 font-mono text-[11px]" style={{ color: 'var(--muted)' }}>
+                  parent1@example.com / password123
+                </div>
               </div>
             </div>
           </div>

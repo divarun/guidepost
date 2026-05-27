@@ -1,7 +1,7 @@
 import jwt from 'jsonwebtoken';
 import bcrypt from 'bcryptjs';
 import { cookies } from 'next/headers';
-import { JWTPayload, AuthUser } from '@/types/auth';
+import { JWTPayload, AuthUser } from '@/lib/types/auth';
 import { UserRole } from '@prisma/client';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'fallback-secret-change-in-production';

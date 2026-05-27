@@ -1,7 +1,6 @@
 export * from './auth';
 export * from './student';
 export * from './parent';
-export * from './ai';
 
 export interface ApiResponse<T = any> {
   success: boolean;

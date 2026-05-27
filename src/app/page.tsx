@@ -19,13 +19,12 @@ const Logotype = ({ small = false }: { small?: boolean }) => (
   </div>
 );
 
-const SectionLabel = ({ number, children }: { number: string; children: React.ReactNode }) => (
+const SectionLabel = ({ children }: { children: React.ReactNode }) => (
   <div
-    className="font-mono text-[11px] uppercase tracking-[0.12em] flex items-center gap-3"
+    className="font-mono text-[11px] uppercase tracking-[0.12em]"
     style={{ color: 'var(--muted)' }}
   >
-    <span style={{ color: 'var(--ink)' }}>{number}</span>
-    <span>{children}</span>
+    {children}
   </div>
 );
 
@@ -35,7 +34,7 @@ export default function HomePage() {
 
       {/* Top nav */}
       <header
-        className="flex items-center justify-between px-14 py-[22px]"
+        className="flex items-center justify-between px-5 md:px-14 py-[22px]"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
         <Logotype />
@@ -63,7 +62,7 @@ export default function HomePage() {
 
       {/* Hero */}
       <section
-        className="px-14 pt-20 pb-16"
+        className="px-5 md:px-14 pt-10 md:pt-20 pb-10 md:pb-16"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
         <h1
@@ -81,7 +80,7 @@ export default function HomePage() {
           </span>
         </h1>
 
-        <div className="flex flex-col md:flex-row gap-16 mt-14 md:items-end">
+        <div className="flex flex-col md:flex-row gap-10 md:gap-16 mt-8 md:mt-14 md:items-end">
           <p
             className="text-[16.5px] leading-[1.55] max-w-[460px] m-0"
             style={{ color: 'var(--ink-2)' }}
@@ -95,7 +94,7 @@ export default function HomePage() {
               className="text-[14px] px-[22px] py-[13px] rounded-full"
               style={{ background: 'var(--ink)', color: 'var(--paper)' }}
             >
-              Start with sophomore year →
+              Get started →
             </Link>
             <Link
               href="/explore/students"
@@ -111,14 +110,11 @@ export default function HomePage() {
       {/* Feature grid */}
       <section
         id="features"
-        className="px-14 py-16"
+        className="px-5 md:px-14 py-16"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
-        <div className="flex justify-between items-baseline mb-10">
-          <SectionLabel number="02">What&apos;s inside</SectionLabel>
-          <span className="font-mono text-[11px]" style={{ color: 'var(--muted)' }}>
-            Five modules · one workspace
-          </span>
+        <div className="mb-10">
+          <SectionLabel>What&apos;s inside</SectionLabel>
         </div>
 
         <div
@@ -131,38 +127,38 @@ export default function HomePage() {
           {[
             {
               n: 'i.',
-              t: 'Application tracker',
-              d: 'Every school, every supplement, every deadline in one chronological view.',
+              t: 'Task tracker',
+              d: 'Tasks and deadlines organized by category, with priorities and due dates.',
             },
             {
               n: 'ii.',
               t: 'Essay workshop',
-              d: 'Drafting space with version history and structured AI feedback when you want it.',
+              d: 'Write and revise essays with version history and AI feedback on demand.',
             },
             {
               n: 'iii.',
               t: 'Financial aid',
-              d: 'FAFSA and CSS deadlines, net price modelling, side-by-side award comparison.',
+              d: 'Track FAFSA and CSS deadlines, compare net costs across schools.',
             },
             {
               n: 'iv.',
               t: 'Four-year timeline',
-              d: 'A grade-by-grade roadmap from tenth-grade course planning through decision day.',
+              d: 'A grade-by-grade guide from sophomore year through decision day.',
             },
             {
               n: 'v.',
-              t: 'Parent companion',
-              d: 'A linked, read-mostly view for parents — informed without being intrusive.',
+              t: 'Parent view',
+              d: 'A separate account for parents to track student progress and manage financial aid.',
             },
             {
               n: 'vi.',
-              t: 'Counselor handoff',
+              t: 'Counselor export',
               d: 'Export summaries to share with school counselors and advisors. Coming soon.',
             },
           ].map((f) => (
             <div
               key={f.t}
-              className="px-7 py-8 min-h-[200px]"
+              className="px-4 py-6 md:px-7 md:py-8 min-h-[160px] md:min-h-[200px]"
               style={{ borderRight: '1px solid var(--hairline)', borderBottom: '1px solid var(--hairline)' }}
             >
               <div
@@ -190,17 +186,17 @@ export default function HomePage() {
 
       {/* Account vs preview */}
       <section
-        className="px-14 py-16 flex flex-col md:flex-row gap-16"
+        className="px-5 md:px-14 py-16 flex flex-col md:flex-row gap-16"
       >
         <div className="md:w-[280px] shrink-0">
-          <SectionLabel number="03" >Account vs. preview</SectionLabel>
+          <SectionLabel>Preview vs. account</SectionLabel>
           <h3
             className="font-serif font-normal mt-4 mb-0"
             style={{ fontSize: 32, lineHeight: 1.05, letterSpacing: '-0.015em' }}
           >
-            Look around before
+            Look around
             <br />
-            <span className="italic" style={{ color: 'var(--muted)' }}>signing up.</span>
+            <span className="italic" style={{ color: 'var(--muted)' }}>before signing up.</span>
           </h3>
         </div>
 
@@ -209,7 +205,7 @@ export default function HomePage() {
           style={{ border: '1px solid var(--hairline)' }}
         >
           {/* Preview */}
-          <div className="p-8" style={{ borderRight: '1px solid var(--hairline)' }}>
+          <div className="p-6 md:p-8 border-b md:border-b-0 md:border-r" style={{ borderColor: 'var(--hairline)' }}>
             <span
               className="font-mono text-[10.5px] uppercase tracking-[0.06em] px-2 py-1 rounded-full"
               style={{ border: '1px solid var(--hairline)', color: 'var(--ink-2)' }}
@@ -231,7 +227,7 @@ export default function HomePage() {
           </div>
 
           {/* Account */}
-          <div className="p-8" style={{ background: 'var(--accent-soft)' }}>
+          <div className="p-6 md:p-8" style={{ background: 'var(--accent-soft)' }}>
             <span
               className="font-mono text-[10.5px] uppercase tracking-[0.06em] px-2 py-1 rounded-full"
               style={{ border: '1px solid var(--accent)', color: 'var(--accent)' }}
@@ -266,7 +262,7 @@ export default function HomePage() {
 
       {/* Footer */}
       <footer
-        className="px-14 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12.5px]"
+        className="px-5 md:px-14 py-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-[12.5px]"
         style={{ borderTop: '1px solid var(--hairline)', color: 'var(--muted)' }}
       >
         <Logotype small />

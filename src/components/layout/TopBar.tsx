@@ -9,7 +9,7 @@ interface TopBarProps {
 export function TopBar({ crumbs, action, onAction }: TopBarProps) {
   return (
     <div
-      className="flex items-center justify-between px-10 py-[18px] shrink-0"
+      className="flex items-center justify-between px-4 md:px-10 py-[18px] shrink-0"
       style={{ borderBottom: '1px solid var(--hairline)', background: 'var(--surface)' }}
     >
       {/* Breadcrumb */}
@@ -25,10 +25,10 @@ export function TopBar({ crumbs, action, onAction }: TopBarProps) {
       </div>
 
       {/* Right side */}
-      <div className="flex items-center gap-4">
-        {/* Search box */}
+      <div className="flex items-center gap-3">
+        {/* Search box — desktop only */}
         <div
-          className="flex items-center gap-2 px-3 py-1.5 rounded text-[12.5px] min-w-[200px]"
+          className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded text-[12.5px] w-[200px]"
           style={{ border: '1px solid var(--hairline)', color: 'var(--muted)' }}
         >
           <span>Search</span>
@@ -39,7 +39,7 @@ export function TopBar({ crumbs, action, onAction }: TopBarProps) {
         {action && (
           <button
             onClick={onAction}
-            className="text-[12.5px] px-3.5 py-2 rounded"
+            className="text-[12.5px] px-3.5 py-2 rounded whitespace-nowrap"
             style={{ background: 'var(--ink)', color: 'var(--paper)', border: 'none', cursor: 'pointer' }}
           >
             {action} →

@@ -30,7 +30,7 @@ export default function ExploreParentsPage() {
 
       {/* Header */}
       <header
-        className="flex items-center justify-between px-14 py-[22px]"
+        className="flex items-center justify-between px-5 md:px-14 py-[22px]"
         style={{ borderBottom: '1px solid var(--hairline)' }}
       >
         <Link href="/" className="flex items-center gap-2.5">
@@ -58,7 +58,7 @@ export default function ExploreParentsPage() {
 
       {/* Preview notice */}
       <div
-        className="px-14 py-3 text-[13px]"
+        className="px-5 md:px-14 py-3 text-[13px]"
         style={{ borderBottom: '1px solid var(--hairline)', color: 'var(--muted)' }}
       >
         Preview — example data only. Nothing is saved.{' '}
@@ -69,7 +69,7 @@ export default function ExploreParentsPage() {
       </div>
 
       {/* Page title */}
-      <section className="px-14 pt-14 pb-10" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      <section className="px-5 md:px-14 pt-14 pb-10" style={{ borderBottom: '1px solid var(--hairline)' }}>
         <p className="font-mono text-[11px] uppercase tracking-[0.12em] mb-4" style={{ color: 'var(--muted)' }}>
           Parent view
         </p>
@@ -85,7 +85,7 @@ export default function ExploreParentsPage() {
       </section>
 
       {/* Financial overview */}
-      <section className="px-14 py-0" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      <section className="px-5 md:px-14 py-0" style={{ borderBottom: '1px solid var(--hairline)' }}>
         <div
           className="grid grid-cols-1 md:grid-cols-3"
           style={{ borderLeft: '1px solid var(--hairline)' }}
@@ -97,7 +97,7 @@ export default function ExploreParentsPage() {
           ].map((s) => (
             <div
               key={s.label}
-              className="px-8 py-8"
+              className="px-5 py-6 md:px-8 md:py-8"
               style={{ borderRight: '1px solid var(--hairline)' }}
             >
               <div className="font-serif" style={{ fontSize: 36, lineHeight: 1, letterSpacing: '-0.02em' }}>
@@ -112,7 +112,7 @@ export default function ExploreParentsPage() {
       </section>
 
       {/* Financial aid tasks */}
-      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      <section className="px-5 md:px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
         <h2 className="font-serif font-normal mb-6" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
           Financial aid tasks
         </h2>
@@ -159,7 +159,7 @@ export default function ExploreParentsPage() {
       </section>
 
       {/* Budget comparison */}
-      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      <section className="px-5 md:px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
         <h2 className="font-serif font-normal mb-6" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
           College cost comparison
         </h2>
@@ -202,7 +202,7 @@ export default function ExploreParentsPage() {
       </section>
 
       {/* Timeline */}
-      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+      <section className="px-5 md:px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
         <h2 className="font-serif font-normal mb-8" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
           Financial aid timeline
         </h2>
@@ -235,7 +235,7 @@ export default function ExploreParentsPage() {
       </section>
 
       {/* CTA */}
-      <section className="px-14 py-16">
+      <section className="px-5 md:px-14 py-16">
         <h2 className="font-serif font-normal mb-4" style={{ fontSize: 32, letterSpacing: '-0.015em' }}>
           Ready to start?
         </h2>

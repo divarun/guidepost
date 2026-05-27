@@ -50,8 +50,9 @@ export function Sidebar({ navItems, user }: SidebarProps) {
   };
 
   return (
+    <>
     <aside
-      className="w-[var(--sidebar-width)] shrink-0 flex flex-col"
+      className="hidden md:flex w-[var(--sidebar-width)] shrink-0 flex-col"
       style={{ background: 'var(--paper)', borderRight: '1px solid var(--hairline)' }}
     >
       {/* Logo */}
@@ -143,6 +144,27 @@ export function Sidebar({ navItems, user }: SidebarProps) {
         </div>
       )}
     </aside>
+
+    {/* Mobile bottom nav */}
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 flex md:hidden"
+      style={{ background: 'var(--paper)', borderTop: '1px solid var(--hairline)', height: 56 }}
+    >
+      {navItems.map((item) => {
+        const isActive = pathname === item.href || pathname.startsWith(item.href + '/');
+        return (
+          <Link
+            key={item.href}
+            href={item.href}
+            className="flex-1 flex items-center justify-center text-[11.5px] font-mono uppercase tracking-[0.06em] transition-colors"
+            style={{ color: isActive ? 'var(--ink)' : 'var(--muted)' }}
+          >
+            {item.name}
+          </Link>
+        );
+      })}
+    </nav>
+    </>
   );
 }
 

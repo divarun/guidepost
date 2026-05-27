@@ -39,6 +39,7 @@ export async function GET() {
       total:    essays.length,
       draft:    essays.filter((e) => e.status === 'DRAFT').length,
       inReview: essays.filter((e) => e.status === 'IN_REVIEW').length,
+      revised:  essays.filter((e) => e.status === 'REVISED').length,
       final:    essays.filter((e) => e.status === 'FINAL').length,
     };
 

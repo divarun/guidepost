@@ -64,7 +64,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Financial aid summary error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate summary';
-    return NextResponse.json({ success: false, error: message }, { status: 503 });
+    return NextResponse.json({ success: false, error: 'Failed to generate summary' }, { status: 503 });
   }
 }

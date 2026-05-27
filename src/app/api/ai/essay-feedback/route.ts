@@ -77,7 +77,6 @@ export async function POST(request: NextRequest) {
     });
   } catch (error) {
     console.error('Essay feedback error:', error);
-    const message = error instanceof Error ? error.message : 'Failed to generate essay feedback';
-    return NextResponse.json({ success: false, error: message }, { status: 503 });
+    return NextResponse.json({ success: false, error: 'Failed to generate essay feedback' }, { status: 503 });
   }
 }

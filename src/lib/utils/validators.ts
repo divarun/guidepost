@@ -31,7 +31,7 @@ export const taskSchema = z.object({
   description: z.string().max(2000).optional(),
   category: z.nativeEnum(TaskCategory),
   priority: z.number().int().min(0).max(10).default(0),
-  dueDate: z.string().refine((v) => !isNaN(Date.parse(v)), { message: 'Invalid date' }).optional(),
+  dueDate: z.string().transform((v) => v || undefined).pipe(z.string().refine((v) => !isNaN(Date.parse(v)), { message: 'Invalid date' }).optional()),
 });
 
 export const updateTaskSchema = taskSchema.partial().extend({
@@ -42,7 +42,7 @@ export const essaySchema = z.object({
   title: z.string().min(1, 'Title is required').max(200),
   prompt: z.string().min(1, 'Prompt is required'),
   schoolName: z.string().max(200).optional(),
-  dueDate: z.string().refine((v) => !isNaN(Date.parse(v)), { message: 'Invalid date' }).optional(),
+  dueDate: z.string().transform((v) => v || undefined).pipe(z.string().refine((v) => !isNaN(Date.parse(v)), { message: 'Invalid date' }).optional()),
 });
 
 export const updateEssaySchema = essaySchema.partial().extend({

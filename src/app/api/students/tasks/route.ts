@@ -115,6 +115,8 @@ export async function PATCH(request: NextRequest) {
     const updateData: any = { ...validation.data };
     if (validation.data.dueDate) {
       updateData.dueDate = new Date(validation.data.dueDate);
+    } else if ('dueDate' in data && !data.dueDate) {
+      updateData.dueDate = null;
     }
     if (validation.data.status === 'COMPLETED') {
       updateData.completedAt = new Date();

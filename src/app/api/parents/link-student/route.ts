@@ -17,6 +17,15 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: false, error: 'Student email is required' }, { status: 400 });
     }
 
+    const parent = await prisma.user.findUnique({
+      where: { id: user.id },
+      select: { studentId: true },
+    });
+
+    if (parent?.studentId) {
+      return NextResponse.json({ success: false, error: 'Already linked to a student. Contact support to change this.' }, { status: 409 });
+    }
+
     const student = await prisma.user.findUnique({
       where: { email: studentEmail },
       select: { id: true, role: true, firstName: true, lastName: true },
@@ -24,6 +33,15 @@ export async function POST(request: Request) {
 
     if (!student || student.role !== 'STUDENT') {
       return NextResponse.json({ success: false, error: 'No student account found with that email' }, { status: 404 });
+    }
+
+    const alreadyClaimed = await prisma.user.findFirst({
+      where: { studentId: student.id },
+      select: { id: true },
+    });
+
+    if (alreadyClaimed) {
+      return NextResponse.json({ success: false, error: 'That student account is already linked to another parent.' }, { status: 409 });
     }
 
     await prisma.user.update({

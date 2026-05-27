@@ -21,20 +21,28 @@ export class RateLimiter {
     const key = `ratelimit:${identifier}`;
     const now = Date.now();
 
-    const countStr = cache.get(key);
-    const currentCount = countStr ? parseInt(countStr) : 0;
+    const stored = cache.get(key);
+    let currentCount = 0;
+    let windowExpiry = now + this.config.windowMs;
+
+    if (stored) {
+      const sep = stored.indexOf(':');
+      currentCount = parseInt(stored.slice(0, sep), 10);
+      windowExpiry = parseInt(stored.slice(sep + 1), 10);
+    }
 
     if (currentCount >= this.config.maxRequests) {
-      return { allowed: false, remaining: 0, resetAt: now + this.config.windowMs };
+      return { allowed: false, remaining: 0, resetAt: windowExpiry };
     }
 
     const newCount = currentCount + 1;
-    cache.set(key, newCount.toString(), Math.ceil(this.config.windowMs / 1000));
+    const remainingSeconds = Math.max(1, Math.ceil((windowExpiry - now) / 1000));
+    cache.set(key, `${newCount}:${windowExpiry}`, remainingSeconds);
 
     return {
       allowed: true,
       remaining: this.config.maxRequests - newCount,
-      resetAt: now + this.config.windowMs,
+      resetAt: windowExpiry,
     };
   }
 

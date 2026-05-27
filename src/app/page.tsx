@@ -42,7 +42,6 @@ export default function HomePage() {
         <nav className="hidden md:flex gap-8 text-[13.5px]" style={{ color: 'var(--ink-2)' }}>
           <Link href="/explore/students">For students</Link>
           <Link href="/explore/parents">For parents</Link>
-          <a href="#features">Timeline</a>
         </nav>
         <div className="flex gap-4 items-center">
           <Link

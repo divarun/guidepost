@@ -1,206 +1,265 @@
 import Link from 'next/link';
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
 import { mockParentTasks, mockBudgets } from '@/lib/constants/mockData';
 import { parentTimeline } from '@/lib/constants/timelineData';
 import { formatShortDate, formatCurrency } from '@/lib/utils/formatters';
 
+const Mark = () => (
+  <svg width={18} height={18} viewBox="0 0 24 24" fill="none">
+    <circle cx="12" cy="12" r="10.5" stroke="var(--ink)" strokeWidth="1" opacity="0.35" />
+    <path d="M12 3.5 L13.6 11 L20 12 L13.6 13 L12 20.5 L10.4 13 L4 12 L10.4 11 Z" fill="var(--ink)" />
+  </svg>
+);
+
+const statusLabel: Record<string, string> = {
+  COMPLETED: 'Done',
+  IN_PROGRESS: 'In progress',
+  NOT_STARTED: 'Not started',
+  OVERDUE: 'Overdue',
+};
+
 export default function ExploreParentsPage() {
-  const totalCost = mockBudgets.reduce((sum, b) => {
-    return sum + b.tuitionCost + b.roomAndBoard + b.booksAndSupplies + b.otherExpenses;
-  }, 0);
-
-  const totalAid = mockBudgets.reduce((sum, b) => {
-    return sum + b.expectedAid + b.scholarships;
-  }, 0);
-
+  const totalCost = mockBudgets.reduce(
+    (sum, b) => sum + b.tuitionCost + b.roomAndBoard + b.booksAndSupplies + b.otherExpenses,
+    0
+  );
+  const totalAid = mockBudgets.reduce((sum, b) => sum + b.expectedAid + b.scholarships, 0);
   const netCost = totalCost - totalAid;
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div style={{ background: 'var(--paper)', color: 'var(--ink)', minHeight: '100vh' }}>
+
       {/* Header */}
-      <header className="bg-white shadow-sm">
-        <div className="container-custom py-6">
-          <div className="flex justify-between items-center">
-            <Link href="/" className="text-2xl font-bold text-primary-600">
-              Guidepost
-            </Link>
-            <div className="flex gap-4">
-              <Link href="/explore/students" className="text-gray-600 hover:text-gray-900">
-                Student View
-              </Link>
-              <Link href="/auth/register" className="btn-primary">
-                Create Parent Account
-              </Link>
-            </div>
-          </div>
+      <header
+        className="flex items-center justify-between px-14 py-[22px]"
+        style={{ borderBottom: '1px solid var(--hairline)' }}
+      >
+        <Link href="/" className="flex items-center gap-2.5">
+          <Mark />
+          <span className="font-serif tracking-[-0.01em]" style={{ fontSize: 19, color: 'var(--ink)', fontWeight: 400 }}>
+            Guidepost
+          </span>
+        </Link>
+        <nav className="hidden md:flex gap-8 text-[13.5px]" style={{ color: 'var(--ink-2)' }}>
+          <Link href="/explore/students">For students</Link>
+        </nav>
+        <div className="flex gap-4 items-center">
+          <Link href="/auth/login" className="text-[13.5px]" style={{ color: 'var(--ink-2)' }}>
+            Log in
+          </Link>
+          <Link
+            href="/auth/register"
+            className="text-[13px] px-4 py-2 rounded-full"
+            style={{ background: 'var(--ink)', color: 'var(--paper)' }}
+          >
+            Create account →
+          </Link>
         </div>
       </header>
 
-      <main className="container-custom py-12">
-        {/* Preview Banner */}
-        <div className="bg-purple-50 border-l-4 border-purple-400 p-4 mb-8">
-          <div className="flex">
-            <div className="flex-shrink-0">
-              <svg className="h-5 w-5 text-purple-400" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
-              </svg>
+      {/* Preview notice */}
+      <div
+        className="px-14 py-3 text-[13px]"
+        style={{ borderBottom: '1px solid var(--hairline)', color: 'var(--muted)' }}
+      >
+        Preview — example data only. Nothing is saved.{' '}
+        <Link href="/auth/register" style={{ color: 'var(--ink)', textDecoration: 'underline' }}>
+          Create an account
+        </Link>{' '}
+        to track your own financial aid and costs.
+      </div>
+
+      {/* Page title */}
+      <section className="px-14 pt-14 pb-10" style={{ borderBottom: '1px solid var(--hairline)' }}>
+        <p className="font-mono text-[11px] uppercase tracking-[0.12em] mb-4" style={{ color: 'var(--muted)' }}>
+          Parent view
+        </p>
+        <h1
+          className="font-serif font-normal m-0"
+          style={{ fontSize: 'clamp(36px, 5vw, 56px)', lineHeight: 1, letterSpacing: '-0.02em' }}
+        >
+          Financial aid planner
+        </h1>
+        <p className="mt-4 text-[15px] leading-relaxed max-w-[480px]" style={{ color: 'var(--ink-2)' }}>
+          Track deadlines, compare college costs, and see your student's progress — all in one place.
+        </p>
+      </section>
+
+      {/* Financial overview */}
+      <section className="px-14 py-0" style={{ borderBottom: '1px solid var(--hairline)' }}>
+        <div
+          className="grid grid-cols-1 md:grid-cols-3"
+          style={{ borderLeft: '1px solid var(--hairline)' }}
+        >
+          {[
+            { value: formatCurrency(totalCost), label: 'Total cost (all schools)' },
+            { value: formatCurrency(totalAid), label: 'Expected aid & scholarships' },
+            { value: formatCurrency(netCost), label: 'Estimated net cost' },
+          ].map((s) => (
+            <div
+              key={s.label}
+              className="px-8 py-8"
+              style={{ borderRight: '1px solid var(--hairline)' }}
+            >
+              <div className="font-serif" style={{ fontSize: 36, lineHeight: 1, letterSpacing: '-0.02em' }}>
+                {s.value}
+              </div>
+              <div className="mt-2 text-[12.5px] font-mono uppercase tracking-[0.08em]" style={{ color: 'var(--muted)' }}>
+                {s.label}
+              </div>
             </div>
-            <div className="ml-3">
-              <p className="text-sm text-purple-700">
-                <strong>Preview Mode:</strong> This is example data showing how Guidepost helps parents navigate financial aid and college costs.{' '}
-                <Link href="/auth/register" className="font-medium underline">
-                  Create an account
-                </Link>{' '}
-                to start planning your family's college journey.
-              </p>
-            </div>
-          </div>
+          ))}
         </div>
+      </section>
 
-        {/* Title */}
-        <div className="mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Parent Portal</h1>
-          <p className="text-lg text-gray-600">
-            Track financial aid deadlines, create college budgets, and support your student's success.
-          </p>
-        </div>
-
-        {/* Financial Overview */}
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          <Card>
-            <CardContent className="text-center py-6">
-              <div className="text-3xl font-bold text-gray-900 mb-2">
-                {formatCurrency(totalCost)}
-              </div>
-              <div className="text-sm text-gray-600">Total Cost (All Schools)</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center py-6">
-              <div className="text-3xl font-bold text-green-600 mb-2">
-                {formatCurrency(totalAid)}
-              </div>
-              <div className="text-sm text-gray-600">Expected Aid & Scholarships</div>
-            </CardContent>
-          </Card>
-          <Card>
-            <CardContent className="text-center py-6">
-              <div className="text-3xl font-bold text-primary-600 mb-2">
-                {formatCurrency(netCost)}
-              </div>
-              <div className="text-sm text-gray-600">Estimated Net Cost</div>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Financial Aid Tasks */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>Financial Aid Tasks</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-gray-400 mb-3 italic">Timing shown is approximate. Verify deadlines with each school and program.</p>
-            <div className="space-y-3">
-              {mockParentTasks.map((task) => (
-                <div key={task.id} className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div className="flex items-center gap-3">
-                    <input type="checkbox" checked={(task.status as string) === 'COMPLETED'} readOnly className="h-4 w-4" />
-                    <div>
-                      <div className="font-medium text-gray-900">{task.title}</div>
-                      {task.description && (
-                        <div className="text-sm text-gray-600">{task.description}</div>
-                      )}
+      {/* Financial aid tasks */}
+      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+        <h2 className="font-serif font-normal mb-6" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
+          Financial aid tasks
+        </h2>
+        <p className="text-[12px] mb-5" style={{ color: 'var(--muted)' }}>
+          Timing shown is approximate. Verify deadlines with each school and studentaid.gov.
+        </p>
+        <div style={{ borderTop: '1px solid var(--hairline)' }}>
+          {mockParentTasks.map((task) => (
+            <div
+              key={task.id}
+              className="flex items-center justify-between py-4"
+              style={{ borderBottom: '1px solid var(--hairline)' }}
+            >
+              <div className="flex items-center gap-4">
+                <div
+                  className="w-4 h-4 rounded-sm flex-shrink-0"
+                  style={{
+                    border: '1px solid var(--hairline)',
+                    background: (task.status as string) === 'COMPLETED' ? 'var(--ink)' : 'transparent',
+                  }}
+                />
+                <div>
+                  <div className="text-[14px]" style={{ color: (task.status as string) === 'COMPLETED' ? 'var(--muted)' : 'var(--ink)' }}>
+                    {task.title}
+                  </div>
+                  {task.description && (
+                    <div className="text-[12.5px] mt-0.5" style={{ color: 'var(--muted)' }}>
+                      {task.description}
                     </div>
-                  </div>
-                  {task.dueLabel ? (
-                    <div className="text-sm text-gray-500">{task.dueLabel}</div>
-                  ) : task.dueDate ? (
-                    <div className="text-sm text-gray-500">{formatShortDate(task.dueDate)}</div>
-                  ) : null}
+                  )}
                 </div>
-              ))}
+              </div>
+              <div className="flex items-center gap-6 flex-shrink-0 ml-8">
+                <span className="text-[12.5px]" style={{ color: 'var(--muted)' }}>
+                  {task.dueLabel ?? (task.dueDate ? formatShortDate(task.dueDate) : '')}
+                </span>
+                <span className="font-mono text-[11px] uppercase tracking-[0.06em]" style={{ color: 'var(--muted)' }}>
+                  {statusLabel[task.status as string] ?? task.status}
+                </span>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+      </section>
 
-        {/* College Budgets */}
-        <Card className="mb-8">
-          <CardHeader>
-            <CardTitle>College Cost Comparison</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <p className="text-xs text-gray-400 mb-3 italic">Figures are illustrative examples. Actual costs and aid vary — verify with each school.</p>
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead className="bg-gray-50">
-                  <tr>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-gray-900">School</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Tuition</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Room & Board</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Total Cost</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Expected Aid</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-gray-900">Net Cost</th>
+      {/* Budget comparison */}
+      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+        <h2 className="font-serif font-normal mb-6" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
+          College cost comparison
+        </h2>
+        <p className="text-[12px] mb-5" style={{ color: 'var(--muted)' }}>
+          Figures are illustrative. Actual costs and aid vary — verify with each school's net price calculator.
+        </p>
+        <div className="overflow-x-auto" style={{ borderTop: '1px solid var(--hairline)' }}>
+          <table className="w-full" style={{ borderCollapse: 'collapse' }}>
+            <thead>
+              <tr style={{ borderBottom: '1px solid var(--hairline)' }}>
+                {['School', 'Tuition', 'Room & Board', 'Total cost', 'Expected aid', 'Net cost'].map((h) => (
+                  <th
+                    key={h}
+                    className={`py-3 text-[12px] font-mono uppercase tracking-[0.06em] ${h === 'School' ? 'text-left' : 'text-right'}`}
+                    style={{ color: 'var(--muted)', fontWeight: 400 }}
+                  >
+                    {h}
+                  </th>
+                ))}
+              </tr>
+            </thead>
+            <tbody>
+              {mockBudgets.map((budget) => {
+                const total = budget.tuitionCost + budget.roomAndBoard + budget.booksAndSupplies + budget.otherExpenses;
+                const net = total - budget.expectedAid - budget.scholarships;
+                return (
+                  <tr key={budget.id} style={{ borderBottom: '1px solid var(--hairline)' }}>
+                    <td className="py-4 text-[14px]">{budget.schoolName}</td>
+                    <td className="py-4 text-[13.5px] text-right" style={{ color: 'var(--ink-2)' }}>{formatCurrency(budget.tuitionCost)}</td>
+                    <td className="py-4 text-[13.5px] text-right" style={{ color: 'var(--ink-2)' }}>{formatCurrency(budget.roomAndBoard)}</td>
+                    <td className="py-4 text-[13.5px] text-right">{formatCurrency(total)}</td>
+                    <td className="py-4 text-[13.5px] text-right" style={{ color: 'var(--ink-2)' }}>{formatCurrency(budget.expectedAid + budget.scholarships)}</td>
+                    <td className="py-4 text-[13.5px] text-right font-medium">{formatCurrency(net)}</td>
                   </tr>
-                </thead>
-                <tbody className="divide-y divide-gray-200">
-                  {mockBudgets.map((budget, index) => {
-                    const total = budget.tuitionCost + budget.roomAndBoard + budget.booksAndSupplies + budget.otherExpenses;
-                    const net = total - budget.expectedAid - budget.scholarships;
-                    return (
-                      <tr key={index}>
-                        <td className="px-4 py-3 text-sm font-medium text-gray-900">{budget.schoolName}</td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(budget.tuitionCost)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-600">{formatCurrency(budget.roomAndBoard)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-gray-900 font-medium">{formatCurrency(total)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-green-600">{formatCurrency(budget.expectedAid + budget.scholarships)}</td>
-                        <td className="px-4 py-3 text-sm text-right text-primary-600 font-bold">{formatCurrency(net)}</td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          </CardContent>
-        </Card>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </section>
 
-        {/* Timeline Preview */}
-        <Card>
-          <CardHeader>
-            <CardTitle>Financial Aid Timeline</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <div className="space-y-6">
-              {parentTimeline.slice(0, 4).map((event, index) => (
-                <div key={index} className="flex gap-4">
-                  <div className="flex-shrink-0 w-32 text-sm font-medium text-gray-900">
-                    {event.grade}
-                  </div>
-                  <div className="flex-grow">
-                    <div className="font-medium text-gray-900 mb-1">{event.season}: {event.title}</div>
-                    <p className="text-sm text-gray-600 mb-2">{event.description}</p>
-                    <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
-                      {event.tasks.slice(0, 3).map((task, idx) => (
-                        <li key={idx}>{task}</li>
-                      ))}
-                    </ul>
-                  </div>
+      {/* Timeline */}
+      <section className="px-14 py-12" style={{ borderBottom: '1px solid var(--hairline)' }}>
+        <h2 className="font-serif font-normal mb-8" style={{ fontSize: 24, letterSpacing: '-0.01em' }}>
+          Financial aid timeline
+        </h2>
+        <div className="space-y-8">
+          {parentTimeline.slice(0, 4).map((event, index) => (
+            <div key={index} className="flex gap-10">
+              <div className="flex-shrink-0 w-28">
+                <div className="font-mono text-[11px] uppercase tracking-[0.08em]" style={{ color: 'var(--muted)' }}>
+                  {event.grade}
                 </div>
-              ))}
+                <div className="text-[13px] mt-1" style={{ color: 'var(--ink-2)' }}>{event.season}</div>
+              </div>
+              <div className="flex-1" style={{ borderTop: '1px solid var(--hairline)', paddingTop: 2 }}>
+                <div className="text-[14px] mb-1">{event.title}</div>
+                <p className="text-[13px] leading-relaxed mb-3 m-0" style={{ color: 'var(--ink-2)' }}>
+                  {event.description}
+                </p>
+                <ul className="m-0 p-0 space-y-1">
+                  {event.tasks.slice(0, 3).map((task, idx) => (
+                    <li key={idx} className="flex gap-2 text-[13px]" style={{ color: 'var(--muted)', listStyle: 'none' }}>
+                      <span>—</span>
+                      <span>{task}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
             </div>
-          </CardContent>
-        </Card>
+          ))}
+        </div>
+      </section>
 
-        {/* CTA */}
-        <div className="mt-12 text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">Ready to support your student?</h2>
-          <p className="text-gray-600 mb-6">
-            Create your free parent account and start tracking financial aid deadlines and college costs.
-          </p>
-          <Link href="/auth/register" className="btn-primary btn text-lg px-8 py-3">
-            Create Parent Account
+      {/* CTA */}
+      <section className="px-14 py-16">
+        <h2 className="font-serif font-normal mb-4" style={{ fontSize: 32, letterSpacing: '-0.015em' }}>
+          Ready to start?
+        </h2>
+        <p className="text-[15px] mb-8 max-w-[400px]" style={{ color: 'var(--ink-2)' }}>
+          Create a free account to track financial aid deadlines and compare college costs.
+        </p>
+        <div className="flex gap-3 flex-wrap">
+          <Link
+            href="/auth/register"
+            className="text-[14px] px-[22px] py-[13px] rounded-full"
+            style={{ background: 'var(--ink)', color: 'var(--paper)' }}
+          >
+            Create parent account →
+          </Link>
+          <Link
+            href="/auth/login"
+            className="text-[14px] px-[22px] py-[13px] rounded-full"
+            style={{ border: '1px solid var(--ink)', color: 'var(--ink)' }}
+          >
+            Log in
           </Link>
         </div>
-      </main>
+      </section>
+
     </div>
   );
 }
